@@ -179,8 +179,7 @@ const WIDGET_DEFS = {
     description: 'Terning, mønt og tilfældige tal',
     icon: 'dice', category: 'info',
     defaultConfig: {}, render: renderRandomizer
-  }
-};
+  },
 
   // ---- VÆRKTØJER (nye) ----
   password: {
