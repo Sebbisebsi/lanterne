@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lanterne</title>
+  <title>🏕️ - Ny fane</title>
+  <link rel="icon" type="image/png" href="icons/fane.png">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/clock.css">
-  <link rel="stylesheet" href="css/rituals.css">
+  <link rel="stylesheet" href="css/checklist.css">
   <link rel="stylesheet" href="css/scrapbook.css">
   <link rel="stylesheet" href="css/settings.css">
   <link rel="stylesheet" href="css/search.css">
@@ -27,26 +28,48 @@
       <div class="weather" id="weather"></div>
     </section>
 
+    <!-- Stats -->
+    <section class="stats-section fade-in fade-in-2 focusable-hide" id="stats-section">
+    </section>
+
     <!-- Search -->
-    <section class="search-section fade-in fade-in-2" id="search-section">
+    <section class="search-section fade-in fade-in-2 focusable-hide" id="search-section">
     </section>
 
     <!-- Quick Links -->
-    <section class="quicklinks-section fade-in fade-in-3" id="quicklinks-section">
+    <section class="quicklinks-section fade-in fade-in-3 focusable-hide" id="quicklinks-section">
     </section>
 
-    <!-- Rituals -->
-    <section class="rituals-section fade-in fade-in-4" id="rituals-section">
+    <!-- Checklist -->
+    <section class="checklist-section fade-in fade-in-4 focusable-hide" id="checklist-section">
     </section>
 
-    <!-- Widgets (quote, timer, notepad) -->
-    <section class="widgets-section fade-in fade-in-5" id="widgets-section">
+    <!-- Widgets -->
+    <section class="widgets-section fade-in fade-in-5 focusable-hide" id="widgets-section">
     </section>
   </main>
 
   <!-- Top bar with action buttons -->
   <div class="top-bar fade-in fade-in-6">
-    <div class="top-bar-left"></div>
+    <div class="top-bar-left">
+      <button class="top-bar-btn" id="focus-toggle" title="Fokus tilstand">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <circle cx="12" cy="12" r="4"/>
+        </svg>
+      </button>
+      <button class="top-bar-btn" id="widget-add-trigger" title="Tilføj widget">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </button>
+      <button class="top-bar-btn" id="widget-reset-trigger" title="Nulstil widget-layout">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+        </svg>
+      </button>
+    </div>
     <div class="top-bar-right">
       <button class="top-bar-btn" id="sound-trigger" title="Ambient lyde">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

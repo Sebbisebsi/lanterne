@@ -2,7 +2,7 @@ import { get, set } from './storage.js';
 import { setupDrag } from './drag.js';
 
 // ============================================================
-//  WIDGET REGISTRY — every widget type lives here
+//  QUOTES
 // ============================================================
 
 const QUOTES = [
@@ -19,22 +19,13 @@ const QUOTES = [
   { text: "An unexamined life is not worth living.", author: "Socrates" },
   { text: "Happiness is not something ready made. It comes from your own actions.", author: "Dalai Lama" },
   { text: "The journey of a thousand miles begins with one step.", author: "Lao Tzu" },
-  { text: "What we think, we become.", author: "Buddha" },
-  { text: "Turn your wounds into wisdom.", author: "Oprah Winfrey" },
-  { text: "Every moment is a fresh beginning.", author: "T.S. Eliot" },
   { text: "Not all those who wander are lost.", author: "J.R.R. Tolkien" },
   { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
-  { text: "It is during our darkest moments that we must focus to see the light.", author: "Aristotle" },
-  { text: "Life is what happens when you're busy making other plans.", author: "John Lennon" },
   { text: "You must be the change you wish to see in the world.", author: "Mahatma Gandhi" },
   { text: "Wherever you go, go with all your heart.", author: "Confucius" },
-  { text: "The only impossible journey is the one you never begin.", author: "Tony Robbins" },
-  { text: "What you do today can improve all your tomorrows.", author: "Ralph Marston" },
   { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
   { text: "Act as if what you do makes a difference. It does.", author: "William James" },
-  { text: "Everything you've ever wanted is on the other side of fear.", author: "George Addair" },
   { text: "Start where you are. Use what you have. Do what you can.", author: "Arthur Ashe" },
-  { text: "The best preparation for tomorrow is doing your best today.", author: "H. Jackson Brown Jr." },
   { text: "Keep your face always toward the sunshine and shadows will fall behind you.", author: "Walt Whitman" }
 ];
 
@@ -44,647 +35,547 @@ function getDailyQuote() {
   return QUOTES[dayOfYear % QUOTES.length];
 }
 
-// Icons used throughout widgets
+// ============================================================
+//  ICONS
+// ============================================================
+
 const ICONS = {
-  quote: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>',
-  timer: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
-  notepad: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
-  youtube: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/></svg>',
-  worldclock: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
-  countdown: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg>',
-  bookmark: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>',
-  dice: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="M16 8h.01"/><path d="M12 12h.01"/><path d="M8 16h.01"/></svg>',
-  plus: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
-  close: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
-  settings: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.32 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>'
+  quote: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>',
+  timer: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  notepad: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+  youtube: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/></svg>',
+  worldclock: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+  countdown: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg>',
+  bookmark: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>',
+  dice: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="M16 8h.01"/><path d="M12 12h.01"/><path d="M8 16h.01"/></svg>',
+  calculator: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16.01" y1="10" y2="10"/><line x1="12" x2="12.01" y1="10" y2="10"/><line x1="8" x2="8.01" y1="10" y2="10"/><line x1="12" x2="12.01" y1="14" y2="14"/><line x1="8" x2="8.01" y1="14" y2="14"/><line x1="12" x2="12.01" y1="18" y2="18"/><line x1="8" x2="8.01" y1="18" y2="18"/></svg>',
+  todo: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+  habit: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>',
+  converter: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>',
+  palette: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>',
+  breathe: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>',
+  plus: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+  close: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+  settings: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.32 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+  search: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+  externalLink: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
+  trash: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+  check: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'
 };
 
 // ============================================================
-//  WIDGET DEFINITIONS
+//  WIDGET DEFINITIONS — categorized
 // ============================================================
 
+const CATEGORIES = {
+  produktivitet: 'Produktivitet',
+  vaerktoejer: 'Værktøjer',
+  info: 'Info & Underholdning'
+};
+
 const WIDGET_DEFS = {
-  quote: {
-    name: 'Dagens citat',
-    description: 'Et nyt inspirerende citat hver dag',
-    icon: 'quote',
-    defaultConfig: {},
-    render: renderQuote
-  },
+  // ---- PRODUKTIVITET ----
   timer: {
     name: 'Fokus Timer',
-    description: 'Pomodoro-timer med presets og sekunder',
-    icon: 'timer',
-    defaultConfig: {},
-    render: renderTimer
+    description: 'Pomodoro-timer med presets',
+    icon: 'timer', category: 'produktivitet',
+    defaultConfig: {}, render: renderTimer
   },
   notepad: {
     name: 'Hurtige noter',
-    description: 'Et lille skriveblok til tanker og noter',
-    icon: 'notepad',
-    defaultConfig: {},
-    render: renderNotepad
+    description: 'Skriveblok til hurtige tanker',
+    icon: 'notepad', category: 'produktivitet',
+    defaultConfig: {}, render: renderNotepad
+  },
+  todolist: {
+    name: 'Huskeliste',
+    description: 'To-do liste med afkrydsning',
+    icon: 'todo', category: 'produktivitet',
+    defaultConfig: {}, render: renderTodoList
+  },
+  habits: {
+    name: 'Vane Tracker',
+    description: 'Spor daglige vaner og byg streaks',
+    icon: 'habit', category: 'produktivitet',
+    defaultConfig: { habits: ['Træning', 'Læsning', 'Meditation'] },
+    render: renderHabits, hasSettings: true
+  },
+  bookmarks: {
+    name: 'Bogmærker',
+    description: 'Hurtige genveje til yndlingssider',
+    icon: 'bookmark', category: 'produktivitet',
+    defaultConfig: { links: [] },
+    render: renderBookmarks, hasSettings: true
+  },
+
+  // ---- VÆRKTØJER ----
+  calculator: {
+    name: 'Lommeregner',
+    description: 'Hurtig beregner',
+    icon: 'calculator', category: 'vaerktoejer',
+    defaultConfig: {}, render: renderCalculator
+  },
+  unitconverter: {
+    name: 'Enhedskonverter',
+    description: 'Konverter vægt, længde og temperatur',
+    icon: 'converter', category: 'vaerktoejer',
+    defaultConfig: {}, render: renderUnitConverter
+  },
+  colorpicker: {
+    name: 'Farvepalet',
+    description: 'Generér harmoniske farvepaletter',
+    icon: 'palette', category: 'vaerktoejer',
+    defaultConfig: {}, render: renderColorPicker
+  },
+  breathe: {
+    name: 'Åndedræt',
+    description: 'Guidet åndedrætsøvelse (4-4-4)',
+    icon: 'breathe', category: 'vaerktoejer',
+    defaultConfig: {}, render: renderBreathe
+  },
+
+  // ---- INFO & UNDERHOLDNING ----
+  quote: {
+    name: 'Dagens citat',
+    description: 'Et nyt inspirerende citat hver dag',
+    icon: 'quote', category: 'info',
+    defaultConfig: {}, render: renderQuote
   },
   youtube: {
     name: 'YouTube',
-    description: 'Indlejr en YouTube video eller playliste',
-    icon: 'youtube',
+    description: 'Søg og åbn YouTube videoer',
+    icon: 'youtube', category: 'info',
     defaultConfig: { videoUrl: '' },
-    render: renderYouTube,
-    hasSettings: true
+    render: renderYouTube, hasSettings: true
   },
   worldclock: {
     name: 'Verdensur',
     description: 'Se klokken i andre tidszoner',
-    icon: 'worldclock',
-    defaultConfig: {
-      zones: [
-        { label: 'New York', tz: 'America/New_York' },
-        { label: 'London', tz: 'Europe/London' },
-        { label: 'Tokyo', tz: 'Asia/Tokyo' }
-      ]
-    },
-    render: renderWorldClock,
-    hasSettings: true
+    icon: 'worldclock', category: 'info',
+    defaultConfig: { zones: [
+      { label: 'New York', tz: 'America/New_York' },
+      { label: 'London', tz: 'Europe/London' },
+      { label: 'Tokyo', tz: 'Asia/Tokyo' }
+    ]},
+    render: renderWorldClock, hasSettings: true
   },
   countdown: {
     name: 'Nedtælling',
     description: 'Tæl ned til en vigtig dato',
-    icon: 'countdown',
+    icon: 'countdown', category: 'info',
     defaultConfig: { targetDate: '', label: 'Min begivenhed' },
-    render: renderCountdown,
-    hasSettings: true
-  },
-  bookmarks: {
-    name: 'Bogmærker',
-    description: 'Hurtige genveje til dine yndlingssider',
-    icon: 'bookmark',
-    defaultConfig: { links: [] },
-    render: renderBookmarks,
-    hasSettings: true
+    render: renderCountdown, hasSettings: true
   },
   randomizer: {
     name: 'Tilfældighedsgenerator',
-    description: 'Terningkast, møntkast og tilfældig tal',
-    icon: 'dice',
-    defaultConfig: {},
-    render: renderRandomizer
+    description: 'Terning, mønt og tilfældige tal',
+    icon: 'dice', category: 'info',
+    defaultConfig: {}, render: renderRandomizer
   }
 };
 
 const DEFAULT_ENABLED = ['quote', 'timer', 'notepad'];
 
 // ============================================================
-//  WIDGET RENDERERS
+//  RENDERERS
 // ============================================================
 
 function renderQuote(container) {
-  const quote = getDailyQuote();
-  container.innerHTML = `
-    <div class="widget-body widget-quote-body">
-      <blockquote class="quote-text">"${quote.text}"</blockquote>
-      <cite class="quote-author">&mdash; ${quote.author}</cite>
-    </div>
-  `;
+  const q = getDailyQuote();
+  container.innerHTML = `<div class="widget-body widget-quote-body"><blockquote class="quote-text">"${q.text}"</blockquote><cite class="quote-author">&mdash; ${q.author}</cite></div>`;
 }
 
 async function renderTimer(container) {
-  let timerState = await get('timerState', { running: false, endTime: null, duration: 25 });
-  let intervalId = null;
+  let ts = await get('timerState', { running: false, paused: false, endTime: null, duration: 25, remaining: 0 });
+  let intId = null;
 
   function render() {
-    let remaining = 0;
-    let isRunning = false;
+    let rem = 0, run = false, paused = ts.paused || false;
 
-    if (timerState.running && timerState.endTime) {
-      remaining = Math.max(0, timerState.endTime - Date.now());
-      isRunning = remaining > 0;
-      if (!isRunning) {
-        timerState.running = false;
-        set('timerState', timerState);
-      }
+    if (paused && ts.remaining > 0) {
+      rem = ts.remaining;
+    } else if (ts.running && ts.endTime) {
+      rem = Math.max(0, ts.endTime - Date.now());
+      run = rem > 0;
+      if (!run) { ts.running = false; ts.paused = false; set('timerState', ts); }
     }
 
-    const minutes = Math.floor(remaining / 60000);
-    const seconds = Math.floor((remaining % 60000) / 1000);
-    const progress = isRunning ? (1 - remaining / (timerState.duration * 60000)) * 100 : 0;
+    const active = run || paused;
+    const m = Math.floor(rem / 60000), s = Math.floor((rem % 60000) / 1000);
+    const prog = active ? (1 - rem / (ts.duration * 60000)) * 100 : 0;
 
-    container.innerHTML = `
-      <div class="widget-body widget-timer-body ${isRunning ? 'timer-active' : ''}">
-        <div class="timer-display">
-          ${isRunning
-            ? `<span class="timer-time">${String(minutes).padStart(2, '0')}<span class="timer-colon">:</span><span class="timer-seconds">${String(seconds).padStart(2, '0')}</span></span>`
-            : `<span class="timer-label">Fokus</span>`
-          }
-        </div>
-        ${isRunning
-          ? `<div class="timer-progress"><div class="timer-progress-bar" style="width: ${progress}%"></div></div>
-             <button class="timer-btn timer-stop">Stop</button>`
-          : `<div class="timer-presets">
-               <button class="timer-preset" data-min="5">5m</button>
-               <button class="timer-preset" data-min="15">15m</button>
-               <button class="timer-preset" data-min="25">25m</button>
-               <button class="timer-preset" data-min="45">45m</button>
-               <button class="timer-preset" data-min="60">60m</button>
-             </div>`
+    container.innerHTML = `<div class="widget-body widget-timer-body ${run ? 'timer-active' : ''}">
+      <div class="timer-display">${active
+        ? `<span class="timer-time">${String(m).padStart(2,'0')}<span class="timer-colon">:</span><span class="timer-seconds">${String(s).padStart(2,'0')}</span></span>`
+        : `<span class="timer-label">Fokus</span>`}</div>
+      ${active
+        ? `<div class="timer-progress"><div class="timer-progress-bar" style="width:${prog}%"></div></div>
+           <div class="timer-presets">
+             <button class="timer-btn timer-pause">${paused ? 'Fortsæt' : 'Pause'}</button>
+             <button class="timer-btn timer-stop">Stop</button>
+           </div>`
+        : `<div class="timer-presets">${[5,15,25,45].map(v=>`<button class="timer-preset" data-min="${v}">${v}m</button>`).join('')}</div>
+           <div class="timer-presets"><button class="timer-preset" data-min="60">60m</button></div>`}
+    </div>`;
+
+    if (active) {
+      container.querySelector('.timer-pause').addEventListener('click', async () => {
+        if (paused) {
+          ts = { running: true, paused: false, endTime: Date.now() + ts.remaining, duration: ts.duration, remaining: 0 };
+          await set('timerState', ts); startInt(); render();
+        } else {
+          const remaining = Math.max(0, ts.endTime - Date.now());
+          ts = { running: false, paused: true, endTime: null, duration: ts.duration, remaining };
+          await set('timerState', ts); clearInterval(intId); render();
         }
-      </div>
-    `;
-
-    if (isRunning) {
+      });
       container.querySelector('.timer-stop').addEventListener('click', async () => {
-        timerState = { running: false, endTime: null, duration: 25 };
-        await set('timerState', timerState);
-        clearInterval(intervalId);
-        render();
+        ts = { running: false, paused: false, endTime: null, duration: 25, remaining: 0 };
+        await set('timerState', ts); clearInterval(intId); render();
       });
     } else {
       container.querySelectorAll('.timer-preset').forEach(btn => {
         btn.addEventListener('click', async () => {
           const min = parseInt(btn.dataset.min);
-          timerState = { running: true, endTime: Date.now() + min * 60000, duration: min };
-          await set('timerState', timerState);
-          startInterval();
-          render();
+          ts = { running: true, paused: false, endTime: Date.now() + min * 60000, duration: min, remaining: 0 };
+          await set('timerState', ts); startInt(); render();
         });
       });
     }
   }
-
-  function startInterval() {
-    clearInterval(intervalId);
-    intervalId = setInterval(render, 1000);
-  }
-
-  if (timerState.running && timerState.endTime > Date.now()) {
-    startInterval();
-  }
-
+  function startInt() { clearInterval(intId); intId = setInterval(render, 1000); }
+  if (ts.running && ts.endTime > Date.now()) startInt();
   render();
 }
 
 async function renderNotepad(container) {
   const note = await get('quickNote', '');
-
-  container.innerHTML = `
-    <div class="widget-body widget-notepad-body">
-      <textarea class="notepad-textarea" placeholder="Hurtige noter...">${note}</textarea>
-    </div>
-  `;
-
-  const textarea = container.querySelector('.notepad-textarea');
-  let debounce;
-  textarea.addEventListener('input', () => {
-    clearTimeout(debounce);
-    debounce = setTimeout(() => set('quickNote', textarea.value), 300);
-    textarea.style.height = 'auto';
-    textarea.style.height = Math.min(textarea.scrollHeight, 150) + 'px';
-  });
-
-  if (note) {
-    setTimeout(() => {
-      textarea.style.height = 'auto';
-      textarea.style.height = Math.min(textarea.scrollHeight, 150) + 'px';
-    }, 50);
-  }
+  container.innerHTML = `<div class="widget-body widget-notepad-body"><textarea class="notepad-textarea" placeholder="Hurtige noter...">${note}</textarea></div>`;
+  const ta = container.querySelector('.notepad-textarea');
+  let db;
+  ta.addEventListener('input', () => { clearTimeout(db); db = setTimeout(() => set('quickNote', ta.value), 300); ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 150) + 'px'; });
+  if (note) setTimeout(() => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 150) + 'px'; }, 50);
 }
 
 function renderYouTube(container, config) {
   const url = config.videoUrl || '';
   const videoId = extractYouTubeId(url);
-
-  if (!videoId) {
-    container.innerHTML = `
-      <div class="widget-body widget-youtube-body widget-empty-state">
-        <div class="widget-empty-icon">${ICONS.youtube}</div>
-        <p>Tilf&oslash;j en YouTube URL</p>
-        <p class="widget-empty-hint">Brug tandhjulet for at indstille</p>
-      </div>
-    `;
-    return;
+  container.innerHTML = `<div class="widget-body widget-youtube-body">
+    ${videoId ? `<a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" rel="noopener" class="youtube-thumbnail-link"><div class="youtube-thumbnail-wrap"><img src="https://img.youtube.com/vi/${videoId}/mqdefault.jpg" alt="Video" class="youtube-thumbnail" /><div class="youtube-play-overlay"><svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div></a>` : ''}
+    <div class="youtube-search-row"><input type="text" class="youtube-search-input" placeholder="Søg YouTube eller indsæt URL..." /><button class="youtube-search-btn" title="Søg">${ICONS.search}</button><button class="youtube-open-btn" title="Åbn YouTube">${ICONS.externalLink}</button></div>
+  </div>`;
+  const input = container.querySelector('.youtube-search-input');
+  container.querySelector('.youtube-open-btn').addEventListener('click', () => window.open('https://www.youtube.com', '_blank'));
+  function doSearch() {
+    const val = input.value.trim(); if (!val) return;
+    const id = extractYouTubeId(val);
+    window.open(id ? `https://www.youtube.com/watch?v=${id}` : `https://www.youtube.com/results?search_query=${encodeURIComponent(val)}`, '_blank');
   }
-
-  container.innerHTML = `
-    <div class="widget-body widget-youtube-body">
-      <div class="youtube-embed">
-        <iframe
-          src="https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen
-        ></iframe>
-      </div>
-    </div>
-  `;
+  container.querySelector('.youtube-search-btn').addEventListener('click', doSearch);
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
 }
 
 function extractYouTubeId(url) {
   if (!url) return null;
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
-    /^([a-zA-Z0-9_-]{11})$/
-  ];
-  for (const p of patterns) {
-    const m = url.match(p);
-    if (m) return m[1];
+  for (const p of [/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/, /^([a-zA-Z0-9_-]{11})$/]) {
+    const m = url.match(p); if (m) return m[1];
   }
   return null;
 }
 
 function renderWorldClock(container, config) {
   const zones = config.zones || [];
-
   function render() {
     const now = new Date();
-    container.innerHTML = `
-      <div class="widget-body widget-worldclock-body">
-        ${zones.map(z => {
-          let timeStr;
-          try {
-            timeStr = now.toLocaleTimeString('da-DK', {
-              timeZone: z.tz,
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit'
-            });
-          } catch {
-            timeStr = '--:--';
-          }
-          return `
-            <div class="worldclock-zone">
-              <span class="worldclock-label">${z.label}</span>
-              <span class="worldclock-time">${timeStr}</span>
-            </div>
-          `;
-        }).join('')}
-      </div>
-    `;
+    container.innerHTML = `<div class="widget-body widget-worldclock-body">${zones.map(z => {
+      let t; try { t = now.toLocaleTimeString('da-DK', { timeZone: z.tz, hour: '2-digit', minute: '2-digit', second: '2-digit' }); } catch { t = '--:--'; }
+      return `<div class="worldclock-zone"><span class="worldclock-label">${z.label}</span><span class="worldclock-time">${t}</span></div>`;
+    }).join('')}</div>`;
   }
-
-  render();
-  setInterval(render, 1000);
+  render(); setInterval(render, 1000);
 }
 
 function renderCountdown(container, config) {
   const target = config.targetDate ? new Date(config.targetDate) : null;
   const label = config.label || 'Begivenhed';
-
   if (!target || isNaN(target.getTime())) {
-    container.innerHTML = `
-      <div class="widget-body widget-countdown-body widget-empty-state">
-        <div class="widget-empty-icon">${ICONS.countdown}</div>
-        <p>Indstil en dato</p>
-        <p class="widget-empty-hint">Brug tandhjulet for at v&aelig;lge</p>
-      </div>
-    `;
+    container.innerHTML = `<div class="widget-body widget-countdown-body widget-empty-state"><div class="widget-empty-icon">${ICONS.countdown}</div><p>Indstil en dato</p><p class="widget-empty-hint">Brug tandhjulet for at vælge</p></div>`;
     return;
   }
-
   function render() {
-    const now = Date.now();
-    const diff = target.getTime() - now;
-
-    if (diff <= 0) {
-      container.innerHTML = `
-        <div class="widget-body widget-countdown-body">
-          <div class="countdown-label">${label}</div>
-          <div class="countdown-reached">Det er i dag!</div>
-        </div>
-      `;
-      return;
-    }
-
-    const days = Math.floor(diff / 86400000);
-    const hours = Math.floor((diff % 86400000) / 3600000);
-    const mins = Math.floor((diff % 3600000) / 60000);
-
-    container.innerHTML = `
-      <div class="widget-body widget-countdown-body">
-        <div class="countdown-label">${label}</div>
-        <div class="countdown-grid">
-          <div class="countdown-unit">
-            <span class="countdown-number">${days}</span>
-            <span class="countdown-unit-label">dage</span>
-          </div>
-          <div class="countdown-unit">
-            <span class="countdown-number">${hours}</span>
-            <span class="countdown-unit-label">timer</span>
-          </div>
-          <div class="countdown-unit">
-            <span class="countdown-number">${mins}</span>
-            <span class="countdown-unit-label">min</span>
-          </div>
-        </div>
-      </div>
-    `;
+    const diff = target.getTime() - Date.now();
+    if (diff <= 0) { container.innerHTML = `<div class="widget-body widget-countdown-body"><div class="countdown-label">${label}</div><div class="countdown-reached">Det er i dag!</div></div>`; return; }
+    const d = Math.floor(diff / 86400000), h = Math.floor((diff % 86400000) / 3600000), min = Math.floor((diff % 3600000) / 60000);
+    container.innerHTML = `<div class="widget-body widget-countdown-body"><div class="countdown-label">${label}</div><div class="countdown-grid"><div class="countdown-unit"><span class="countdown-number">${d}</span><span class="countdown-unit-label">dage</span></div><div class="countdown-unit"><span class="countdown-number">${h}</span><span class="countdown-unit-label">timer</span></div><div class="countdown-unit"><span class="countdown-number">${min}</span><span class="countdown-unit-label">min</span></div></div></div>`;
   }
-
-  render();
-  setInterval(render, 60000);
+  render(); setInterval(render, 60000);
 }
 
 function renderBookmarks(container, config) {
   const links = config.links || [];
-
-  container.innerHTML = `
-    <div class="widget-body widget-bookmarks-body">
-      ${links.length === 0
-        ? `<div class="widget-empty-state">
-            <div class="widget-empty-icon">${ICONS.bookmark}</div>
-            <p>Ingen bogm&aelig;rker endnu</p>
-            <p class="widget-empty-hint">Brug tandhjulet for at tilf&oslash;je</p>
-           </div>`
-        : `<div class="bookmarks-list">
-            ${links.map(l => {
-              const safeUrl = sanitizeUrl(l.url);
-              let hostname = '';
-              try { hostname = new URL(safeUrl).hostname; } catch {}
-              return `
-                <a href="${safeUrl}" class="bookmark-item" title="${l.url}">
-                  <img class="bookmark-favicon" src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(hostname)}&sz=32" alt="" width="16" height="16" />
-                  <span>${l.name}</span>
-                </a>
-              `;
-            }).join('')}
-           </div>`
-      }
-    </div>
-  `;
+  container.innerHTML = `<div class="widget-body widget-bookmarks-body">${links.length === 0
+    ? `<div class="widget-empty-state"><div class="widget-empty-icon">${ICONS.bookmark}</div><p>Ingen bogmærker</p><p class="widget-empty-hint">Brug tandhjulet for at tilføje</p></div>`
+    : `<div class="bookmarks-list">${links.map(l => { const u = sanitizeUrl(l.url); let h=''; try{h=new URL(u).hostname}catch{} return `<a href="${u}" class="bookmark-item"><img class="bookmark-favicon" src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(h)}&sz=32" alt="" width="16" height="16" /><span>${l.name}</span></a>`; }).join('')}</div>`
+  }</div>`;
 }
 
-function sanitizeUrl(url) {
-  if (!url) return '#';
-  if (!/^https?:\/\//i.test(url)) return 'https://' + url;
-  return url;
-}
+function sanitizeUrl(url) { if (!url) return '#'; if (!/^https?:\/\//i.test(url)) return 'https://' + url; return url; }
 
 function renderRandomizer(container) {
-  container.innerHTML = `
-    <div class="widget-body widget-randomizer-body">
-      <div class="randomizer-result">?</div>
-      <div class="randomizer-actions">
-        <button class="randomizer-btn" data-type="dice" title="Terningkast">
-          ${ICONS.dice} <span>Terning</span>
-        </button>
-        <button class="randomizer-btn" data-type="coin" title="Møntkast">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/></svg>
-          <span>M&oslash;nt</span>
-        </button>
-        <button class="randomizer-btn" data-type="number" title="Tilfældigt tal 1-100">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
-          <span>1-100</span>
-        </button>
-      </div>
-    </div>
-  `;
-
-  const resultEl = container.querySelector('.randomizer-result');
-
+  container.innerHTML = `<div class="widget-body widget-randomizer-body"><div class="randomizer-result">?</div><div class="randomizer-actions"><button class="randomizer-btn" data-type="dice">${ICONS.dice} <span>Terning</span></button><button class="randomizer-btn" data-type="coin"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/></svg><span>Mønt</span></button><button class="randomizer-btn" data-type="number"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/></svg><span>1-100</span></button></div></div>`;
+  const r = container.querySelector('.randomizer-result');
   container.querySelectorAll('.randomizer-btn').forEach(btn => {
+    btn.addEventListener('click', () => { r.classList.add('randomizer-spin'); setTimeout(() => { r.classList.remove('randomizer-spin'); const t = btn.dataset.type; r.textContent = t === 'dice' ? Math.ceil(Math.random()*6) : t === 'coin' ? (Math.random()<0.5?'Plat':'Krone') : Math.ceil(Math.random()*100); }, 300); });
+  });
+}
+
+// ---- CALCULATOR (fixed) ----
+function renderCalculator(container) {
+  container.innerHTML = `<div class="widget-body widget-calc-body"><div class="calc-display">0</div><div class="calc-grid">
+    <button class="calc-btn calc-op" data-v="C">C</button><button class="calc-btn calc-op" data-v="(">(</button><button class="calc-btn calc-op" data-v=")">)</button><button class="calc-btn calc-op calc-accent" data-v="/">÷</button>
+    <button class="calc-btn" data-v="7">7</button><button class="calc-btn" data-v="8">8</button><button class="calc-btn" data-v="9">9</button><button class="calc-btn calc-op calc-accent" data-v="*">×</button>
+    <button class="calc-btn" data-v="4">4</button><button class="calc-btn" data-v="5">5</button><button class="calc-btn" data-v="6">6</button><button class="calc-btn calc-op calc-accent" data-v="-">−</button>
+    <button class="calc-btn" data-v="1">1</button><button class="calc-btn" data-v="2">2</button><button class="calc-btn" data-v="3">3</button><button class="calc-btn calc-op calc-accent" data-v="+">+</button>
+    <button class="calc-btn calc-zero" data-v="0">0</button><button class="calc-btn" data-v=".">.</button><button class="calc-btn calc-op calc-equals" data-v="=">=</button>
+  </div></div>`;
+
+  const display = container.querySelector('.calc-display');
+  let expr = '', justCalc = false;
+
+  container.querySelectorAll('.calc-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      resultEl.classList.add('randomizer-spin');
-      setTimeout(() => {
-        resultEl.classList.remove('randomizer-spin');
-        const type = btn.dataset.type;
-        if (type === 'dice') resultEl.textContent = Math.ceil(Math.random() * 6);
-        else if (type === 'coin') resultEl.textContent = Math.random() < 0.5 ? 'Plat' : 'Krone';
-        else resultEl.textContent = Math.ceil(Math.random() * 100);
-      }, 300);
+      const v = btn.dataset.v;
+      if (v === 'C') { expr = ''; display.textContent = '0'; justCalc = false; return; }
+      if (v === '=') {
+        try {
+          // Only allow safe math characters
+          const safe = expr.replace(/[^0-9+\-*/().]/g, '');
+          if (!safe) { display.textContent = '0'; return; }
+          const result = Function('"use strict"; return (' + safe + ')')();
+          if (typeof result === 'number' && isFinite(result)) {
+            display.textContent = parseFloat(result.toFixed(10));
+            expr = String(result);
+          } else {
+            display.textContent = 'Fejl';
+            expr = '';
+          }
+        } catch {
+          display.textContent = 'Fejl';
+          expr = '';
+        }
+        justCalc = true;
+        return;
+      }
+      // Start fresh after calculation if typing a number
+      if (justCalc && /[0-9.]/.test(v)) { expr = ''; }
+      justCalc = false;
+      expr += v;
+      // Show a readable version
+      display.textContent = expr.replace(/\*/g, '×').replace(/\//g, '÷');
     });
   });
 }
 
-
-// ============================================================
-//  WIDGET SETTINGS MODALS
-// ============================================================
-
-function showWidgetSettingsModal(widgetId, currentConfig, onSave) {
-  const def = WIDGET_DEFS[widgetId];
-  if (!def) return;
-
-  const overlay = document.createElement('div');
-  overlay.className = 'widget-settings-overlay';
-
-  let formHTML = '';
-
-  if (widgetId === 'youtube') {
-    formHTML = `
-      <label class="ws-label">YouTube URL</label>
-      <input class="ws-input" type="url" id="ws-video-url" value="${currentConfig.videoUrl || ''}" placeholder="https://youtube.com/watch?v=..." />
-    `;
-  } else if (widgetId === 'countdown') {
-    formHTML = `
-      <label class="ws-label">Begivenhed</label>
-      <input class="ws-input" type="text" id="ws-cd-label" value="${currentConfig.label || ''}" placeholder="Min begivenhed" />
-      <label class="ws-label">Dato</label>
-      <input class="ws-input" type="date" id="ws-cd-date" value="${currentConfig.targetDate || ''}" />
-    `;
-  } else if (widgetId === 'worldclock') {
-    const zones = currentConfig.zones || [];
-    formHTML = `
-      <label class="ws-label">Tidszoner (en per linje: Label, Tidszone)</label>
-      <textarea class="ws-textarea" id="ws-wc-zones" rows="4" placeholder="New York, America/New_York&#10;London, Europe/London&#10;Tokyo, Asia/Tokyo">${zones.map(z => `${z.label}, ${z.tz}`).join('\n')}</textarea>
-      <p class="ws-hint">Eksempler: America/New_York, Europe/London, Asia/Tokyo, Australia/Sydney</p>
-    `;
-  } else if (widgetId === 'bookmarks') {
-    const links = currentConfig.links || [];
-    formHTML = `
-      <label class="ws-label">Bogm&aelig;rker (en per linje: Navn, URL)</label>
-      <textarea class="ws-textarea" id="ws-bm-links" rows="5" placeholder="Google, https://google.com&#10;GitHub, https://github.com">${links.map(l => `${l.name}, ${l.url}`).join('\n')}</textarea>
-    `;
+// ---- BREATHE ----
+function renderBreathe(container) {
+  container.innerHTML = `<div class="widget-body widget-breathe-body"><div class="breathe-circle"><div class="breathe-inner">Klar</div></div><button class="breathe-start-btn">Start øvelse</button></div>`;
+  const circle = container.querySelector('.breathe-circle'), inner = container.querySelector('.breathe-inner'), btn = container.querySelector('.breathe-start-btn');
+  let running = false, tid = null;
+  function run(ph) {
+    if (!running) return;
+    if (ph === 'in') { inner.textContent = 'Indånd...'; circle.className = 'breathe-circle breathe-inhale'; tid = setTimeout(() => run('hold'), 4000); }
+    else if (ph === 'hold') { inner.textContent = 'Hold...'; circle.className = 'breathe-circle breathe-hold'; tid = setTimeout(() => run('out'), 4000); }
+    else { inner.textContent = 'Udånd...'; circle.className = 'breathe-circle breathe-exhale'; tid = setTimeout(() => run('in'), 4000); }
   }
-
-  overlay.innerHTML = `
-    <div class="widget-settings-modal">
-      <div class="ws-header">
-        <span class="ws-icon">${ICONS[def.icon] || ''}</span>
-        <h3>${def.name}</h3>
-      </div>
-      <div class="ws-form">
-        ${formHTML}
-      </div>
-      <div class="ws-actions">
-        <button class="ws-cancel">Annuller</button>
-        <button class="ws-save">Gem</button>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
-  // Focus first input
-  const firstInput = overlay.querySelector('input, textarea');
-  if (firstInput) setTimeout(() => firstInput.focus(), 50);
-
-  overlay.querySelector('.ws-cancel').addEventListener('click', () => overlay.remove());
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
-
-  overlay.querySelector('.ws-save').addEventListener('click', () => {
-    let newConfig = { ...currentConfig };
-
-    if (widgetId === 'youtube') {
-      newConfig.videoUrl = overlay.querySelector('#ws-video-url').value.trim();
-    } else if (widgetId === 'countdown') {
-      newConfig.label = overlay.querySelector('#ws-cd-label').value.trim() || 'Begivenhed';
-      newConfig.targetDate = overlay.querySelector('#ws-cd-date').value;
-    } else if (widgetId === 'worldclock') {
-      const text = overlay.querySelector('#ws-wc-zones').value;
-      newConfig.zones = text.split('\n').filter(l => l.trim()).map(line => {
-        const parts = line.split(',').map(s => s.trim());
-        return { label: parts[0] || 'Zone', tz: parts[1] || 'UTC' };
-      });
-    } else if (widgetId === 'bookmarks') {
-      const text = overlay.querySelector('#ws-bm-links').value;
-      newConfig.links = text.split('\n').filter(l => l.trim()).map(line => {
-        const parts = line.split(',').map(s => s.trim());
-        return { name: parts[0] || 'Link', url: parts.slice(1).join(',').trim() || '#' };
-      });
-    }
-
-    onSave(newConfig);
-    overlay.remove();
+  btn.addEventListener('click', () => {
+    if (running) { running = false; clearTimeout(tid); circle.className = 'breathe-circle'; inner.textContent = 'Klar'; btn.textContent = 'Start øvelse'; }
+    else { running = true; btn.textContent = 'Stop'; run('in'); }
   });
 }
 
+// ---- TODO LIST ----
+async function renderTodoList(container) {
+  let todos = await get('widgetTodos', []);
+  function render() {
+    container.innerHTML = `<div class="widget-body widget-todolist-body"><div class="todo-input-row"><input type="text" class="todo-input" placeholder="Ny opgave..." maxlength="60" /><button class="todo-add-btn">${ICONS.plus}</button></div><div class="todo-items">${todos.map((t,i) => `<div class="todo-item ${t.done?'todo-done':''}" data-idx="${i}"><button class="todo-check">${t.done?ICONS.check:''}</button><span class="todo-text">${t.text}</span><button class="todo-delete" title="Slet">${ICONS.trash}</button></div>`).join('')}${todos.length===0?'<div class="todo-empty">Ingen opgaver endnu</div>':''}</div></div>`;
+    const input = container.querySelector('.todo-input');
+    function add() { const t = input.value.trim(); if (!t) return; todos.push({text:t,done:false}); set('widgetTodos',todos); render(); }
+    container.querySelector('.todo-add-btn').addEventListener('click', add);
+    input.addEventListener('keydown', e => { if (e.key==='Enter') add(); });
+    container.querySelectorAll('.todo-check').forEach(b => b.addEventListener('click', () => { const i = parseInt(b.closest('.todo-item').dataset.idx); todos[i].done = !todos[i].done; set('widgetTodos',todos); render(); }));
+    container.querySelectorAll('.todo-delete').forEach(b => b.addEventListener('click', () => { todos.splice(parseInt(b.closest('.todo-item').dataset.idx),1); set('widgetTodos',todos); render(); }));
+  }
+  render();
+}
+
+// ---- HABITS ----
+async function renderHabits(container, config) {
+  const names = config.habits || ['Træning', 'Læsning', 'Meditation'];
+  const today = new Date().toISOString().split('T')[0];
+  let data = await get('habitData', {});
+  if (!data[today]) data[today] = {};
+  function streak(h) { let s=0; const d=new Date(); if(data[today]?.[h]) s++; else return 0; for(let i=1;i<=30;i++){d.setDate(d.getDate()-1);if(data[d.toISOString().split('T')[0]]?.[h]) s++; else break;} return s; }
+  function render() {
+    container.innerHTML = `<div class="widget-body widget-habits-body">${names.map(h => { const done=data[today]?.[h]||false; const s=streak(h); return `<div class="habit-row ${done?'habit-done':''}" data-habit="${h}"><button class="habit-check">${done?ICONS.check:''}</button><span class="habit-name">${h}</span>${s>0?`<span class="habit-streak">${s}d</span>`:''}</div>`; }).join('')}</div>`;
+    container.querySelectorAll('.habit-check').forEach(b => b.addEventListener('click', async () => { const h=b.closest('.habit-row').dataset.habit; data[today][h]=!data[today][h]; await set('habitData',data); render(); }));
+  }
+  render();
+}
+
+// ---- UNIT CONVERTER ----
+function renderUnitConverter(container) {
+  const cats = {
+    length: { name:'Længde', units:{m:'Meter',km:'Kilometer',cm:'Centimeter',mi:'Miles',ft:'Fod',in:'Tommer'}, toBase:{m:1,km:1000,cm:0.01,mi:1609.344,ft:0.3048,in:0.0254} },
+    weight: { name:'Vægt', units:{kg:'Kilogram',g:'Gram',lb:'Pounds',oz:'Ounces'}, toBase:{kg:1,g:0.001,lb:0.453592,oz:0.0283495} },
+    temp: { name:'Temp', units:{c:'Celsius',f:'Fahrenheit',k:'Kelvin'}, custom:true }
+  };
+  let cur = 'length';
+  function render() {
+    const cat = cats[cur], keys = Object.keys(cat.units);
+    container.innerHTML = `<div class="widget-body widget-converter-body"><div class="converter-tabs">${Object.entries(cats).map(([k,c])=>`<button class="converter-tab ${k===cur?'active':''}" data-cat="${k}">${c.name}</button>`).join('')}</div><div class="converter-fields"><div class="converter-row"><input type="number" class="converter-input" id="conv-val" value="1" step="any" /><select class="converter-select" id="conv-from">${keys.map(u=>`<option value="${u}">${cat.units[u]}</option>`).join('')}</select></div><div class="converter-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg></div><div class="converter-row"><input type="text" class="converter-input converter-result" id="conv-result" readonly /><select class="converter-select" id="conv-to">${keys.map((u,i)=>`<option value="${u}" ${i===1?'selected':''}>${cat.units[u]}</option>`).join('')}</select></div></div></div>`;
+    container.querySelectorAll('.converter-tab').forEach(t=>t.addEventListener('click',()=>{cur=t.dataset.cat;render();}));
+    const val=container.querySelector('#conv-val'),from=container.querySelector('#conv-from'),to=container.querySelector('#conv-to'),res=container.querySelector('#conv-result');
+    function conv() { const v=parseFloat(val.value); if(isNaN(v)){res.value='';return;} let r; if(cur==='temp'){let c; if(from.value==='c')c=v;else if(from.value==='f')c=(v-32)*5/9;else c=v-273.15; r=to.value==='c'?c:to.value==='f'?c*9/5+32:c+273.15;} else r=v*cat.toBase[from.value]/cat.toBase[to.value]; res.value=isFinite(r)?parseFloat(r.toFixed(6)):''; }
+    val.addEventListener('input',conv); from.addEventListener('change',conv); to.addEventListener('change',conv); conv();
+  }
+  render();
+}
+
+// ---- COLOR PICKER ----
+function renderColorPicker(container) {
+  function hsl(h,s,l){s/=100;l/=100;const a=s*Math.min(l,1-l);const f=n=>{const k=(n+h/30)%12;return Math.round(255*(l-a*Math.max(Math.min(k-3,9-k,1),-1))).toString(16).padStart(2,'0')};return`#${f(0)}${f(8)}${f(4)}`;}
+  function gen(){const b=Math.floor(Math.random()*360),c=[];const s=['a','c','t','s'][Math.floor(Math.random()*4)]; if(s==='a')for(let i=0;i<5;i++)c.push(hsl((b+i*25)%360,55+Math.random()*20,45+Math.random()*20));else if(s==='c'){c.push(hsl(b,60,40),hsl(b,50,55),hsl(b,40,70),hsl((b+180)%360,55,45),hsl((b+180)%360,45,60))}else if(s==='t')for(let i=0;i<5;i++)c.push(hsl((b+Math.floor(i/2)*120+(i%2)*15)%360,55+Math.random()*15,45+Math.random()*15));else{c.push(hsl(b,60,45),hsl(b,50,60),hsl((b+150)%360,55,50),hsl((b+210)%360,55,50),hsl(b,20,85))}return c;}
+  let pal = gen();
+  function render() {
+    container.innerHTML = `<div class="widget-body widget-color-body"><div class="color-palette">${pal.map(c=>`<button class="color-swatch" style="background:${c}" data-color="${c}" title="Klik for at kopiere: ${c}"><span class="color-hex">${c}</span></button>`).join('')}</div><button class="color-generate-btn">Ny palet</button><div class="color-copied" style="display:none"></div></div>`;
+    container.querySelector('.color-generate-btn').addEventListener('click',()=>{pal=gen();render();});
+    container.querySelectorAll('.color-swatch').forEach(s=>s.addEventListener('click',()=>{navigator.clipboard.writeText(s.dataset.color).then(()=>{const c=container.querySelector('.color-copied');c.style.display='block';c.textContent=s.dataset.color+' kopieret!';setTimeout(()=>c.style.display='none',1500);});}));
+  }
+  render();
+}
 
 // ============================================================
-//  WIDGET GALLERY (add menu)
+//  SETTINGS MODALS
+// ============================================================
+
+function showWidgetSettingsModal(widgetId, currentConfig, onSave) {
+  const def = WIDGET_DEFS[widgetId]; if (!def) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'widget-settings-overlay';
+  let formHTML = '';
+
+  if (widgetId === 'youtube') formHTML = `<label class="ws-label">YouTube URL (vises som thumbnail)</label><input class="ws-input" type="url" id="ws-video-url" value="${currentConfig.videoUrl||''}" placeholder="https://youtube.com/watch?v=..." /><p class="ws-hint">Videoen åbnes i en ny fane.</p>`;
+  else if (widgetId === 'countdown') formHTML = `<label class="ws-label">Begivenhed</label><input class="ws-input" type="text" id="ws-cd-label" value="${currentConfig.label||''}" placeholder="Min begivenhed" /><label class="ws-label">Dato</label><input class="ws-input" type="date" id="ws-cd-date" value="${currentConfig.targetDate||''}" />`;
+  else if (widgetId === 'worldclock') { const z=currentConfig.zones||[]; formHTML = `<label class="ws-label">Tidszoner (én per linje: Navn, Tidszone)</label><textarea class="ws-textarea" id="ws-wc-zones" rows="4">${z.map(x=>`${x.label}, ${x.tz}`).join('\n')}</textarea><p class="ws-hint">Eks: America/New_York, Europe/London</p>`; }
+  else if (widgetId === 'bookmarks') { const l=currentConfig.links||[]; formHTML = `<label class="ws-label">Bogmærker (én per linje: Navn, URL)</label><textarea class="ws-textarea" id="ws-bm-links" rows="5">${l.map(x=>`${x.name}, ${x.url}`).join('\n')}</textarea>`; }
+  else if (widgetId === 'habits') { const h=currentConfig.habits||[]; formHTML = `<label class="ws-label">Vaner (én per linje)</label><textarea class="ws-textarea" id="ws-habits-list" rows="4">${h.join('\n')}</textarea>`; }
+
+  overlay.innerHTML = `<div class="widget-settings-modal"><div class="ws-header"><span class="ws-icon">${ICONS[def.icon]||''}</span><h3>${def.name}</h3></div><div class="ws-form">${formHTML}</div><div class="ws-actions"><button class="ws-cancel">Annuller</button><button class="ws-save">Gem</button></div></div>`;
+  document.body.appendChild(overlay);
+  const fi = overlay.querySelector('input, textarea'); if (fi) setTimeout(() => fi.focus(), 50);
+  const close = () => overlay.remove();
+  overlay.querySelector('.ws-cancel').addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+  overlay.querySelector('.ws-save').addEventListener('click', () => {
+    let nc = { ...currentConfig };
+    if (widgetId==='youtube') nc.videoUrl = overlay.querySelector('#ws-video-url').value.trim();
+    else if (widgetId==='countdown') { nc.label=overlay.querySelector('#ws-cd-label').value.trim()||'Begivenhed'; nc.targetDate=overlay.querySelector('#ws-cd-date').value; }
+    else if (widgetId==='worldclock') nc.zones = overlay.querySelector('#ws-wc-zones').value.split('\n').filter(l=>l.trim()).map(l=>{const p=l.split(',').map(s=>s.trim());return{label:p[0]||'Zone',tz:p[1]||'UTC'};});
+    else if (widgetId==='bookmarks') nc.links = overlay.querySelector('#ws-bm-links').value.split('\n').filter(l=>l.trim()).map(l=>{const p=l.split(',').map(s=>s.trim());return{name:p[0]||'Link',url:p.slice(1).join(',').trim()||'#'};});
+    else if (widgetId==='habits') nc.habits = overlay.querySelector('#ws-habits-list').value.split('\n').map(s=>s.trim()).filter(Boolean);
+    onSave(nc); close();
+  });
+}
+
+// ============================================================
+//  WIDGET GALLERY — categorized
 // ============================================================
 
 function showWidgetGallery(enabledWidgets, onAdd) {
   const overlay = document.createElement('div');
   overlay.className = 'widget-gallery-overlay';
-
   const available = Object.entries(WIDGET_DEFS).filter(([id]) => !enabledWidgets.includes(id));
 
-  overlay.innerHTML = `
-    <div class="widget-gallery-modal">
-      <div class="wg-header">
-        <h3>Tilf&oslash;j widget</h3>
-        <button class="wg-close">${ICONS.close}</button>
-      </div>
-      <div class="wg-grid">
-        ${available.length === 0
-          ? '<p class="wg-empty">Alle widgets er allerede tilf&oslash;jet</p>'
-          : available.map(([id, def]) => `
-            <button class="wg-item" data-widget-id="${id}">
-              <div class="wg-item-icon">${ICONS[def.icon] || ''}</div>
-              <div class="wg-item-info">
-                <span class="wg-item-name">${def.name}</span>
-                <span class="wg-item-desc">${def.description}</span>
-              </div>
-            </button>
-          `).join('')
-        }
-      </div>
-    </div>
-  `;
+  // Group by category
+  const grouped = {};
+  for (const [id, def] of available) {
+    const cat = def.category || 'info';
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push([id, def]);
+  }
 
+  let gridHTML = '';
+  if (available.length === 0) {
+    gridHTML = '<p class="wg-empty">Alle widgets er allerede tilføjet</p>';
+  } else {
+    for (const [catKey, catName] of Object.entries(CATEGORIES)) {
+      if (!grouped[catKey] || grouped[catKey].length === 0) continue;
+      gridHTML += `<div class="wg-category-title">${catName}</div>`;
+      gridHTML += grouped[catKey].map(([id, def]) => `
+        <button class="wg-item" data-widget-id="${id}">
+          <div class="wg-item-icon">${ICONS[def.icon]||''}</div>
+          <div class="wg-item-info"><span class="wg-item-name">${def.name}</span><span class="wg-item-desc">${def.description}</span></div>
+        </button>
+      `).join('');
+    }
+  }
+
+  overlay.innerHTML = `<div class="widget-gallery-modal"><div class="wg-header"><h3>Tilføj widget</h3><button class="wg-close">${ICONS.close}</button></div><div class="wg-grid">${gridHTML}</div></div>`;
   document.body.appendChild(overlay);
-
   overlay.querySelector('.wg-close').addEventListener('click', () => overlay.remove());
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
-
-  overlay.querySelectorAll('.wg-item').forEach(btn => {
-    btn.addEventListener('click', () => {
-      onAdd(btn.dataset.widgetId);
-      overlay.remove();
-    });
-  });
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  overlay.querySelectorAll('.wg-item').forEach(btn => btn.addEventListener('click', () => { onAdd(btn.dataset.widgetId); overlay.remove(); }));
 }
 
 // ============================================================
 //  MAIN INIT
 // ============================================================
 
-export async function initWidgets(container) {
+export async function initWidgets(container, addBtn, resetBtn) {
   let enabledWidgets = await get('enabledWidgets', [...DEFAULT_ENABLED]);
   let widgetConfigs = await get('widgetConfigs', {});
 
-  async function saveState() {
-    await set('enabledWidgets', enabledWidgets);
-    await set('widgetConfigs', widgetConfigs);
-  }
-
-  function getConfig(widgetId) {
-    const def = WIDGET_DEFS[widgetId];
-    return { ...(def?.defaultConfig || {}), ...(widgetConfigs[widgetId] || {}) };
-  }
+  async function saveState() { await set('enabledWidgets', enabledWidgets); await set('widgetConfigs', widgetConfigs); }
+  function getConfig(id) { const d=WIDGET_DEFS[id]; return{...(d?.defaultConfig||{}),...(widgetConfigs[id]||{})}; }
 
   async function renderAll() {
     container.innerHTML = `
-      <div class="widgets-toolbar">
-        <button class="widget-add-btn" title="Tilf&oslash;j widget">
-          ${ICONS.plus}
-          <span>Tilf&oslash;j</span>
-        </button>
-      </div>
       <div class="widgets-row">
-        ${enabledWidgets.map(id => {
-          const def = WIDGET_DEFS[id];
-          if (!def) return '';
-          return `
-            <div class="widget-slot" data-widget-id="${id}">
-              <div class="widget-card">
-                <div class="widget-card-header">
-                  <div class="widget-card-icon">${ICONS[def.icon] || ''}</div>
-                  <span class="widget-card-title">${def.name}</span>
-                  <div class="widget-card-actions">
-                    ${def.hasSettings ? `<button class="widget-action-btn widget-settings-btn" title="Indstillinger" data-wid="${id}">${ICONS.settings}</button>` : ''}
-                    <button class="widget-action-btn widget-remove-btn" title="Fjern widget" data-wid="${id}">${ICONS.close}</button>
-                  </div>
-                </div>
-                <div class="widget-card-content" data-content-for="${id}"></div>
-              </div>
-            </div>
-          `;
-        }).join('')}
-      </div>
-    `;
+        ${enabledWidgets.map(id => { const def=WIDGET_DEFS[id]; if(!def)return''; return `
+          <div class="widget-slot" data-widget-id="${id}"><div class="widget-card"><div class="widget-card-header">
+            <div class="widget-card-icon">${ICONS[def.icon]||''}</div><span class="widget-card-title">${def.name}</span>
+            <div class="widget-card-actions">
+              ${def.hasSettings?`<button class="widget-action-btn widget-settings-btn" title="Indstillinger" data-wid="${id}">${ICONS.settings}</button>`:''}
+              <button class="widget-action-btn widget-remove-btn" title="Fjern widget" data-wid="${id}">${ICONS.close}</button>
+            </div></div><div class="widget-card-content" data-content-for="${id}"></div></div></div>`; }).join('')}
+      </div>`;
 
-    // Render each widget content
-    for (const id of enabledWidgets) {
-      const def = WIDGET_DEFS[id];
-      if (!def) continue;
-      const contentEl = container.querySelector(`[data-content-for="${id}"]`);
-      if (contentEl) {
-        await def.render(contentEl, getConfig(id), id);
-      }
-    }
+    for (const id of enabledWidgets) { const def=WIDGET_DEFS[id]; if(!def)continue; const el=container.querySelector(`[data-content-for="${id}"]`); if(el) await def.render(el,getConfig(id),id); }
 
-    // Add widget button
-    container.querySelector('.widget-add-btn')?.addEventListener('click', () => {
-      showWidgetGallery(enabledWidgets, async (newId) => {
-        enabledWidgets.push(newId);
-        await saveState();
-        await renderAll();
-      });
-    });
-
-    // Remove buttons
     container.querySelectorAll('.widget-remove-btn').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const wid = btn.dataset.wid;
-        enabledWidgets = enabledWidgets.filter(id => id !== wid);
-        await saveState();
-        await renderAll();
-      });
+      btn.addEventListener('click', async () => { enabledWidgets = enabledWidgets.filter(id => id !== btn.dataset.wid); await saveState(); await renderAll(); });
     });
 
-    // Settings buttons
     container.querySelectorAll('.widget-settings-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const wid = btn.dataset.wid;
-        showWidgetSettingsModal(wid, getConfig(wid), async (newConfig) => {
-          widgetConfigs[wid] = newConfig;
-          await saveState();
-          await renderAll();
-        });
-      });
+      btn.addEventListener('click', () => { const wid=btn.dataset.wid; showWidgetSettingsModal(wid,getConfig(wid),async(nc)=>{widgetConfigs[wid]=nc;await saveState();await renderAll();}); });
     });
 
-    // Re-attach drag system after every render
     setupDrag(container);
+  }
+
+  // Wire up top-bar buttons
+  if (addBtn) {
+    addBtn.addEventListener('click', () => {
+      showWidgetGallery(enabledWidgets, async (newId) => { enabledWidgets.push(newId); await saveState(); await renderAll(); });
+    });
+  }
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', async () => {
+      const { resetPositions } = await import('./drag.js');
+      if (resetPositions) await resetPositions(container);
+    });
   }
 
   await renderAll();

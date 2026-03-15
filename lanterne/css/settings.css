@@ -278,6 +278,13 @@
   transform: scale(1.05);
 }
 
+.settings-hint {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  padding: 0.25rem 0 0;
+  opacity: 0.7;
+}
+
 .settings-footer {
   padding-top: 1.5rem;
   margin-top: 1rem;

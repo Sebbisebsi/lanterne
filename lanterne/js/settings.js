@@ -7,7 +7,11 @@ const DEFAULT_SETTINGS = {
   userName: '',
   background: 'default',
   backgroundColor: '#1a1410',
-  weatherUnit: 'celsius'
+  weatherUnit: 'celsius',
+  focusMode: false,
+  effectType: 'embers',
+  effectAmount: 'medium',
+  showChecklist: true
 };
 
 export async function initSettings(triggerBtn, panel) {
@@ -137,8 +141,55 @@ export async function initSettings(triggerBtn, panel) {
           </div>
         </div>
 
+        <div class="settings-section">
+          <h4>Visning</h4>
+
+          <div class="settings-row">
+            <label>Fokus tilstand</label>
+            <button class="settings-checkbox ${settings.focusMode ? 'checked' : ''}" data-setting="focusMode">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
+          </div>
+          <p class="settings-hint">Viser kun klokke, hilsen og dato</p>
+        </div>
+
+        <div class="settings-section">
+          <h4>Sektioner</h4>
+
+          <div class="settings-row">
+            <label>Daglig tjekliste</label>
+            <button class="settings-checkbox ${settings.showChecklist !== false ? 'checked' : ''}" data-setting="showChecklist">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
+          </div>
+          <p class="settings-hint">Vis/skjul den daglige tjekliste</p>
+        </div>
+
+        <div class="settings-section">
+          <h4>Effekter</h4>
+
+          <div class="settings-row">
+            <label>Type</label>
+            <div class="settings-toggle-group">
+              <button class="settings-toggle-btn ${settings.effectType === 'embers' ? 'active' : ''}" data-effect-val="embers">Gløder</button>
+              <button class="settings-toggle-btn ${settings.effectType === 'regn' ? 'active' : ''}" data-effect-val="regn">Regn</button>
+              <button class="settings-toggle-btn ${settings.effectType === 'vind' ? 'active' : ''}" data-effect-val="vind">Vind</button>
+              <button class="settings-toggle-btn ${settings.effectType === 'ingen' ? 'active' : ''}" data-effect-val="ingen">Ingen</button>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <label>Mængde</label>
+            <div class="settings-toggle-group">
+              <button class="settings-toggle-btn ${settings.effectAmount === 'lav' ? 'active' : ''}" data-amount-val="lav">Lav</button>
+              <button class="settings-toggle-btn ${settings.effectAmount === 'medium' ? 'active' : ''}" data-amount-val="medium">Medium</button>
+              <button class="settings-toggle-btn ${settings.effectAmount === 'høj' ? 'active' : ''}" data-amount-val="høj">Høj</button>
+            </div>
+          </div>
+        </div>
+
         <div class="settings-footer">
-          <span class="settings-version">Lanterne v0.1.0</span>
+          <span class="settings-version">Lanterne v0.5.0</span>
         </div>
       </div>
     `;
@@ -190,6 +241,37 @@ export async function initSettings(triggerBtn, panel) {
         updateSetting('greeting', !settings.greeting).then(() => location.reload());
       });
     }
+
+    // Focus mode toggle
+    const focusModeBtn = panel.querySelector('[data-setting="focusMode"]');
+    if (focusModeBtn) {
+      focusModeBtn.addEventListener('click', () => {
+        updateSetting('focusMode', !settings.focusMode).then(() => location.reload());
+      });
+    }
+
+    // Checklist toggle
+    const checklistBtn = panel.querySelector('[data-setting="showChecklist"]');
+    if (checklistBtn) {
+      checklistBtn.addEventListener('click', () => {
+        const newVal = settings.showChecklist === false ? true : false;
+        updateSetting('showChecklist', newVal).then(() => location.reload());
+      });
+    }
+
+    // Effect type
+    panel.querySelectorAll('[data-effect-val]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        updateSetting('effectType', btn.dataset.effectVal).then(() => location.reload());
+      });
+    });
+
+    // Effect amount
+    panel.querySelectorAll('[data-amount-val]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        updateSetting('effectAmount', btn.dataset.amountVal).then(() => location.reload());
+      });
+    });
 
     // Name input
     const nameInput = panel.querySelector('.settings-text-input');

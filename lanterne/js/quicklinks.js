@@ -29,6 +29,9 @@ export async function initQuickLinks(container) {
     row.className = 'quicklinks-row';
 
     links.forEach(link => {
+      const wrap = document.createElement('div');
+      wrap.className = 'quicklink-wrap';
+
       const el = document.createElement('a');
       el.className = 'quicklink';
       el.href = link.url;
@@ -40,17 +43,22 @@ export async function initQuickLinks(container) {
         <span class="quicklink-name">${link.name}</span>
       `;
 
-      // Right click to delete
-      el.addEventListener('contextmenu', async (e) => {
+      // Delete button (visible on hover)
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'quicklink-delete';
+      deleteBtn.title = `Fjern ${link.name}`;
+      deleteBtn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+      deleteBtn.addEventListener('click', async (e) => {
         e.preventDefault();
-        if (confirm(`Fjern "${link.name}"?`)) {
-          links = links.filter(l => l.id !== link.id);
-          await set('quicklinks', links);
-          render();
-        }
+        e.stopPropagation();
+        links = links.filter(l => l.id !== link.id);
+        await set('quicklinks', links);
+        render();
       });
 
-      row.appendChild(el);
+      wrap.appendChild(el);
+      wrap.appendChild(deleteBtn);
+      row.appendChild(wrap);
     });
 
     // Add button
@@ -88,12 +96,15 @@ export async function initQuickLinks(container) {
     overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
     modal.querySelector('.quicklink-cancel').addEventListener('click', () => overlay.remove());
 
+    // Escape to close
+    function onKey(e) { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', onKey); } }
+    document.addEventListener('keydown', onKey);
+
     modal.querySelector('.quicklink-save').addEventListener('click', async () => {
       const name = modal.querySelector('#ql-name').value.trim();
       let url = modal.querySelector('#ql-url').value.trim();
       if (!name || !url) return;
 
-      // Auto-add https if missing
       if (!url.startsWith('http://') && !url.startsWith('https://')) {
         url = 'https://' + url;
       }
@@ -105,11 +116,11 @@ export async function initQuickLinks(container) {
       });
 
       await set('quicklinks', links);
+      document.removeEventListener('keydown', onKey);
       overlay.remove();
       render();
     });
 
-    // Enter on URL field to save
     modal.querySelector('#ql-url').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') modal.querySelector('.quicklink-save').click();
     });

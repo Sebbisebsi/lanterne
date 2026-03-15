@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Lanterne",
-  "version": "0.3.0",
+  "version": "0.5.0",
   "description": "Dit varme, personlige udgangspunkt. En ny fane der f\u00f8les som hjem.",
   "chrome_url_overrides": {
     "newtab": "newtab.html"

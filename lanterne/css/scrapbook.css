@@ -43,6 +43,12 @@
   box-shadow: 0 0 20px var(--accent-glow);
 }
 
+.top-bar-btn.active {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
 /* Scrapbook panel */
 .scrapbook-panel {
   position: fixed;

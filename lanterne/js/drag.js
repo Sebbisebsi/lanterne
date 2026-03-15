@@ -1,25 +1,31 @@
 import { get, set } from './storage.js';
 
-const SNAP_SIZE = 20;
-const SNAP_THRESHOLD = 12;
-
-// Shared state across calls
-let editMode = false;
 let positions = null;
 
 /**
+ * Reset all widget positions to default.
+ */
+export async function resetPositions(container) {
+  positions = {};
+  await set('widgetPositions', {});
+  container.querySelectorAll('.widget-draggable').forEach(el => {
+    el.style.transform = '';
+    if (el._dragState) el._dragState.setOffset(0, 0);
+  });
+}
+
+/**
  * Called after every widget render to attach drag handles.
- * Safe to call multiple times — re-attaches to new DOM elements.
+ * Drag is always active — no edit mode needed.
+ * Keeps widgets fully within the viewport at all times.
  */
 export async function setupDrag(container) {
   if (!positions) {
     positions = await get('widgetPositions', {});
   }
 
-  // Attach drag handles to each widget card
   const widgets = container.querySelectorAll('.widget-card');
   widgets.forEach((widget, i) => {
-    // Skip if already set up
     if (widget.querySelector('.widget-drag-handle')) return;
 
     const id = widget.closest('[data-widget-id]')?.dataset.widgetId ||
@@ -39,20 +45,28 @@ export async function setupDrag(container) {
     `;
     widget.prepend(handle);
 
-    // Restore saved position
+    // Track the current transform offset for this widget
+    let currentX = positions[id]?.x || 0;
+    let currentY = positions[id]?.y || 0;
+
+    // Apply saved position (clamped to current viewport)
     if (positions[id]) {
-      widget.style.transform = `translate(${positions[id].x}px, ${positions[id].y}px)`;
+      const clamped = clampToViewport(widget, currentX, currentY);
+      currentX = clamped.x;
+      currentY = clamped.y;
+      widget.style.transform = `translate(${currentX}px, ${currentY}px)`;
+      positions[id] = { x: currentX, y: currentY };
     }
 
-    let startX, startY, currentX = positions[id]?.x || 0, currentY = positions[id]?.y || 0;
+    let startX, startY;
     let isDragging = false;
 
     handle.addEventListener('mousedown', onStart);
     handle.addEventListener('touchstart', onStart, { passive: false });
 
     function onStart(e) {
-      if (!editMode) return;
       e.preventDefault();
+      e.stopPropagation();
       isDragging = true;
       widget.classList.add('dragging');
 
@@ -71,19 +85,13 @@ export async function setupDrag(container) {
       e.preventDefault();
 
       const point = e.touches ? e.touches[0] : e;
-      let x = point.clientX - startX;
-      let y = point.clientY - startY;
+      let rawX = point.clientX - startX;
+      let rawY = point.clientY - startY;
 
-      if (Math.abs(x % SNAP_SIZE) < SNAP_THRESHOLD) {
-        x = Math.round(x / SNAP_SIZE) * SNAP_SIZE;
-      }
-      if (Math.abs(y % SNAP_SIZE) < SNAP_THRESHOLD) {
-        y = Math.round(y / SNAP_SIZE) * SNAP_SIZE;
-      }
-
-      currentX = x;
-      currentY = y;
-      widget.style.transform = `translate(${x}px, ${y}px)`;
+      const clamped = clampToViewport(widget, rawX, rawY);
+      currentX = clamped.x;
+      currentY = clamped.y;
+      widget.style.transform = `translate(${currentX}px, ${currentY}px)`;
     }
 
     async function onEnd() {
@@ -98,55 +106,63 @@ export async function setupDrag(container) {
       positions[id] = { x: currentX, y: currentY };
       await set('widgetPositions', positions);
     }
+
+    widget._dragState = {
+      getCurrentOffset: () => ({ x: currentX, y: currentY }),
+      setOffset: (x, y) => { currentX = x; currentY = y; }
+    };
   });
 
-  // Add edit/reset buttons to toolbar (only once)
-  const toolbar = container.querySelector('.widgets-toolbar');
-  if (toolbar && !toolbar.querySelector('.widget-edit-btn')) {
-    const editBtn = document.createElement('button');
-    editBtn.className = 'widget-edit-btn';
-    editBtn.title = 'Flyt widgets';
-    editBtn.innerHTML = `
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M5 9l4-4 4 4"/><path d="M5 15l4 4 4-4"/>
-        <path d="M15 9l4-4"/><path d="M15 15l4 4"/>
-      </svg>
-      <span>${editMode ? 'Gem' : 'Flyt'}</span>
-    `;
-    if (editMode) editBtn.classList.add('active');
-
-    const resetBtn = document.createElement('button');
-    resetBtn.className = 'widget-reset-btn';
-    resetBtn.title = 'Nulstil layout';
-    resetBtn.style.display = editMode ? '' : 'none';
-    resetBtn.innerHTML = `
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-        <path d="M3 3v5h5"/>
-      </svg>
-      Nulstil
-    `;
-
-    toolbar.prepend(resetBtn);
-    toolbar.prepend(editBtn);
-
-    editBtn.addEventListener('click', () => {
-      editMode = !editMode;
-      container.classList.toggle('edit-mode', editMode);
-      editBtn.classList.toggle('active', editMode);
-      editBtn.querySelector('span').textContent = editMode ? 'Gem' : 'Flyt';
-      resetBtn.style.display = editMode ? '' : 'none';
-    });
-
-    resetBtn.addEventListener('click', async () => {
-      positions = {};
-      await set('widgetPositions', {});
-      container.querySelectorAll('.widget-draggable').forEach(el => {
-        el.style.transform = '';
+  // Listen for resize to clamp widgets back into bounds
+  if (!container._resizeListenerAdded) {
+    container._resizeListenerAdded = true;
+    window.addEventListener('resize', () => {
+      container.querySelectorAll('.widget-draggable').forEach(w => {
+        const dragId = w.getAttribute('data-drag-id');
+        if (!dragId || !w._dragState) return;
+        const current = w._dragState.getCurrentOffset();
+        if (current.x === 0 && current.y === 0) return;
+        const clamped = clampToViewport(w, current.x, current.y);
+        w.style.transform = `translate(${clamped.x}px, ${clamped.y}px)`;
+        w._dragState.setOffset(clamped.x, clamped.y);
+        if (positions[dragId]) positions[dragId] = { x: clamped.x, y: clamped.y };
       });
     });
   }
+}
 
-  // Restore edit mode state
-  container.classList.toggle('edit-mode', editMode);
+/**
+ * Clamp a translate offset so the widget stays fully within the viewport.
+ */
+function clampToViewport(widget, newX, newY) {
+  const rect = widget.getBoundingClientRect();
+  const w = rect.width;
+  const h = rect.height;
+
+  const style = widget.style.transform;
+  let curTx = 0, curTy = 0;
+  if (style) {
+    const match = style.match(/translate\(\s*(-?[\d.]+)px\s*,\s*(-?[\d.]+)px\s*\)/);
+    if (match) {
+      curTx = parseFloat(match[1]);
+      curTy = parseFloat(match[2]);
+    }
+  }
+
+  const naturalLeft = rect.left - curTx;
+  const naturalTop = rect.top - curTy;
+
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  const pad = 8;
+  const minX = pad - naturalLeft;
+  const maxX = vw - pad - naturalLeft - w;
+  const minY = pad - naturalTop;
+  const maxY = vh - pad - naturalTop - h;
+
+  return {
+    x: Math.round(Math.max(minX, Math.min(maxX, newX))),
+    y: Math.round(Math.max(minY, Math.min(maxY, newY)))
+  };
 }
