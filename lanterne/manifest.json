@@ -1,10 +1,21 @@
 {
   "manifest_version": 3,
   "name": "Lanterne",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Dit varme, personlige udgangspunkt. En ny fane der f\u00f8les som hjem.",
   "chrome_url_overrides": {
     "newtab": "newtab.html"
+  },
+  "action": {
+    "default_title": "Lanterne \u2014 \u00c5bn ny fane",
+    "default_icon": {
+      "16": "icons/lanterne-16.png",
+      "48": "icons/lanterne-48.png",
+      "128": "icons/lanterne-128.png"
+    }
+  },
+  "background": {
+    "service_worker": "js/background.js"
   },
   "permissions": ["storage", "activeTab", "tabs"],
   "host_permissions": ["https://api.open-meteo.com/*"],

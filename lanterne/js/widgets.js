@@ -1,4 +1,5 @@
 import { get, set } from './storage.js';
+import { setupDrag } from './drag.js';
 
 // ============================================================
 //  WIDGET REGISTRY — every widget type lives here
@@ -681,6 +682,9 @@ export async function initWidgets(container) {
         });
       });
     });
+
+    // Re-attach drag system after every render
+    setupDrag(container);
   }
 
   await renderAll();

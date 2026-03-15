@@ -25,6 +25,14 @@
   padding: 0.5rem 1rem;
 }
 
+.clock-seconds {
+  font-size: 0.4em;
+  color: var(--text-muted);
+  font-weight: 300;
+  opacity: 0.5;
+  letter-spacing: 0.01em;
+}
+
 /* The warm lantern glow behind the clock */
 .clock::before {
   content: '';

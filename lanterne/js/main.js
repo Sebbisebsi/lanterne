@@ -9,7 +9,6 @@ import { initScrapbook } from './scrapbook.js';
 import { initSettings } from './settings.js';
 import { initWidgets } from './widgets.js';
 import { initSounds } from './sounds.js';
-import { initDrag } from './drag.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   // Load saved settings
@@ -37,18 +36,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     'settings-panel', 'sound-trigger'
   ]);
 
+  // Classes that our code dynamically appends to <body>
+  const OUR_CLASSES = new Set([
+    'background-layer', 'background-overlay', 'ambience-canvas',
+    'content', 'top-bar', 'scrapbook-panel', 'settings-panel',
+    // Dynamically appended modals/overlays
+    'widget-settings-overlay', 'widget-gallery-overlay',
+    'quicklink-modal-overlay', 'sound-panel'
+  ]);
+
   function hideChromeCrap() {
     document.querySelectorAll('body > *').forEach(el => {
-      if (el.tagName === 'SCRIPT') return;
-      if (el.classList.contains('background-layer')) return;
-      if (el.classList.contains('background-overlay')) return;
-      if (el.classList.contains('ambience-canvas')) return;
-      if (el.classList.contains('content')) return;
-      if (el.classList.contains('top-bar')) return;
-      if (el.classList.contains('scrapbook-panel')) return;
-      if (el.classList.contains('settings-panel')) return;
+      if (el.tagName === 'SCRIPT' || el.tagName === 'LINK' || el.tagName === 'STYLE') return;
       if (el.tagName === 'CANVAS' && el.id === 'ambience-canvas') return;
       if (OUR_IDS.has(el.id)) return;
+      // Check if any of the element's classes match our known classes
+      for (const cls of el.classList) {
+        if (OUR_CLASSES.has(cls)) return;
+      }
       // It's not ours — hide it
       el.style.cssText = 'display:none!important;visibility:hidden!important;';
     });
@@ -79,9 +84,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Initialize widgets
   await initWidgets(document.getElementById('widgets-section'));
-
-  // Initialize drag system for widgets
-  await initDrag(document.getElementById('widgets-section'));
 
   // Initialize ambient sounds
   initSounds(document.getElementById('sound-trigger'));

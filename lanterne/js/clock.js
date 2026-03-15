@@ -21,19 +21,23 @@ export async function initClock(clockEl, greetingEl, dateEl) {
     const now = new Date();
     const hour = now.getHours();
     const minute = now.getMinutes();
+    const second = now.getSeconds();
 
-    // Format time
-    let timeStr;
+    // Format time with seconds in muted style
+    let timeMain;
+    let timeSec = String(second).padStart(2, '0');
     if (settings.clockFormat === '12h') {
       const h = hour % 12 || 12;
       const ampm = hour >= 12 ? 'PM' : 'AM';
-      timeStr = `${h}:${String(minute).padStart(2, '0')} ${ampm}`;
+      timeMain = `${h}:${String(minute).padStart(2, '0')}`;
+      timeSec = `${timeSec} ${ampm}`;
     } else {
-      timeStr = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+      timeMain = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
     }
 
+    const timeStr = `${timeMain}:${timeSec}`;
     if (timeStr !== lastTime) {
-      clockEl.textContent = timeStr;
+      clockEl.innerHTML = `${timeMain}<span class="clock-seconds">:${timeSec}</span>`;
       lastTime = timeStr;
     }
 
