@@ -134,6 +134,7 @@ html, body {
 .fade-in-3 { animation-delay: 0.4s; }
 .fade-in-4 { animation-delay: 0.55s; }
 .fade-in-5 { animation-delay: 0.7s; }
+.fade-in-6 { animation-delay: 0.85s; }
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {
@@ -169,6 +170,25 @@ html, body {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
+}
+
+/* Hide Chrome's new tab page overlay elements */
+#ntp-contents,
+.customize-chrome-a11y-element,
+body > div[style*="position: fixed"][style*="bottom"],
+#oneGoogleBar,
+#content,
+.ntp-bg,
+#fakeInput {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Push our content above any potential bottom overlay */
+body {
+  padding-bottom: 0 !important;
 }
 
 /* Quick Links */
