@@ -86,7 +86,12 @@ export async function initSettings(triggerBtn, panel) {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 Lyst
               </button>
+              <button class="settings-toggle-btn ${settings.theme === 'auto' ? 'active' : ''}" data-theme-val="auto">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2"/><path d="M12 21v2"/><path d="M4.22 4.22l1.42 1.42"/><path d="M18.36 18.36l1.42 1.42"/><path d="M1 12h2"/><path d="M21 12h2"/><path d="M16 12a4 4 0 0 0 6 6 6 6 0 1 1-6-6Z"/></svg>
+                Dag-Nat
+              </button>
             </div>
+            ${settings.theme === 'auto' ? '<p class="settings-hint">Skifter automatisk mellem lyst og m&oslash;rkt tema efter klokkeslaet, med dynamisk sol og m&aring;ne</p>' : ''}
           </div>
 
           <div class="settings-row">
@@ -189,7 +194,7 @@ export async function initSettings(triggerBtn, panel) {
         </div>
 
         <div class="settings-footer">
-          <span class="settings-version">Lanterne v0.5.0</span>
+          <span class="settings-version">Lanterne v0.6.0</span>
         </div>
       </div>
     `;
@@ -202,7 +207,7 @@ export async function initSettings(triggerBtn, panel) {
 
     // Theme toggles
     panel.querySelectorAll('[data-theme-val]').forEach(btn => {
-      btn.addEventListener('click', () => updateSetting('theme', btn.dataset.themeVal).then(render));
+      btn.addEventListener('click', () => updateSetting('theme', btn.dataset.themeVal).then(() => location.reload()));
     });
 
     // Background toggles

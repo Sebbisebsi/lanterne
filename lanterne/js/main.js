@@ -10,6 +10,7 @@ import { initSettings } from './settings.js';
 import { initWidgets } from './widgets.js';
 import { initSounds } from './sounds.js';
 import { initStats } from './stats.js';
+import { initDayNight } from './daynight.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   const settings = await get('settings', {
@@ -29,10 +30,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (settings.theme === 'light') {
     document.documentElement.setAttribute('data-theme', 'light');
   }
+  // Auto theme handled by daynight.js
 
   // Aggressively remove Chrome's injected new tab page elements
   const OUR_IDS = new Set([
-    'bg-layer', 'bg-overlay', 'ambience-canvas', 'clock-section',
+    'bg-layer', 'bg-overlay', 'daynight-canvas', 'ambience-canvas', 'clock-section',
     'clock', 'greeting', 'date-display', 'weather', 'stats-section',
     'search-section', 'quicklinks-section', 'checklist-section', 'widgets-section',
     'scrapbook-btn', 'scrapbook-panel', 'settings-trigger',
@@ -41,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   ]);
 
   const OUR_CLASSES = new Set([
-    'background-layer', 'background-overlay', 'ambience-canvas',
+    'background-layer', 'background-overlay', 'daynight-canvas', 'ambience-canvas',
     'content', 'top-bar', 'scrapbook-panel', 'settings-panel',
     'widget-settings-overlay', 'widget-gallery-overlay',
     'quicklink-modal-overlay', 'sound-panel',
@@ -51,7 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function hideChromeCrap() {
     document.querySelectorAll('body > *').forEach(el => {
       if (el.tagName === 'SCRIPT' || el.tagName === 'LINK' || el.tagName === 'STYLE') return;
-      if (el.tagName === 'CANVAS' && el.id === 'ambience-canvas') return;
+      if (el.tagName === 'CANVAS' && (el.id === 'ambience-canvas' || el.id === 'daynight-canvas')) return;
       if (OUR_IDS.has(el.id)) return;
       for (const cls of el.classList) {
         if (OUR_CLASSES.has(cls)) return;
@@ -70,6 +72,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('greeting'),
     document.getElementById('date-display')
   );
+
+  // Day-night system (only when theme is 'auto')
+  const daynightCanvas = document.getElementById('daynight-canvas');
+  if (settings.theme === 'auto') {
+    initDayNight(daynightCanvas);
+  } else {
+    daynightCanvas.style.display = 'none';
+  }
 
   initAmbience(document.getElementById('ambience-canvas'), settings);
   initSearch(document.getElementById('search-section'));

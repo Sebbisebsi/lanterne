@@ -90,6 +90,14 @@ html, body {
   background: radial-gradient(ellipse at center, rgba(248, 242, 234, 0.5) 0%, rgba(248, 242, 234, 0.85) 100%);
 }
 
+/* Day-night canvas */
+.daynight-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
 /* Main content */
 .content {
   position: relative;
