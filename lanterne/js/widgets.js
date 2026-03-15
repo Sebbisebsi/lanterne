@@ -60,7 +60,15 @@ const ICONS = {
   search: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
   externalLink: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
   trash: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
-  check: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'
+  check: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
+  password: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+  texttools: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>',
+  base64: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>',
+  lorem: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>',
+  weather: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>',
+  snake: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M6 12h4l2-4 2 8 2-4h2"/></svg>',
+  netinfo: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>',
+  tabmemory: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>'
 };
 
 // ============================================================
@@ -171,6 +179,59 @@ const WIDGET_DEFS = {
     description: 'Terning, mønt og tilfældige tal',
     icon: 'dice', category: 'info',
     defaultConfig: {}, render: renderRandomizer
+  }
+};
+
+  // ---- VÆRKTØJER (nye) ----
+  password: {
+    name: 'Kodeordsgenerator',
+    description: 'Generér sikre tilfældige kodeord',
+    icon: 'password', category: 'vaerktoejer',
+    defaultConfig: {}, render: renderPassword
+  },
+  texttools: {
+    name: 'Tekstværktøjer',
+    description: 'Ordtæller, tegntæller og tekstkonvertering',
+    icon: 'texttools', category: 'vaerktoejer',
+    defaultConfig: {}, render: renderTextTools
+  },
+  base64: {
+    name: 'Base64',
+    description: 'Encode og decode Base64 tekst',
+    icon: 'base64', category: 'vaerktoejer',
+    defaultConfig: {}, render: renderBase64
+  },
+  lorem: {
+    name: 'Lorem Ipsum',
+    description: 'Generér placeholder-tekst',
+    icon: 'lorem', category: 'vaerktoejer',
+    defaultConfig: {}, render: renderLorem
+  },
+
+  // ---- INFO & UNDERHOLDNING (nye) ----
+  deepweather: {
+    name: 'Dybdegående Vejr',
+    description: 'Detaljeret vejrudsigt med vind, fugt og UV',
+    icon: 'weather', category: 'info',
+    defaultConfig: {}, render: renderDeepWeather
+  },
+  snake: {
+    name: 'Snake',
+    description: 'Klassisk snake-spil direkte i din widget',
+    icon: 'snake', category: 'info',
+    defaultConfig: {}, render: renderSnake
+  },
+  netinfo: {
+    name: 'Internetinformation',
+    description: 'Vis din IP, forbindelsestype og hastighed',
+    icon: 'netinfo', category: 'info',
+    defaultConfig: {}, render: renderNetInfo
+  },
+  tabmemory: {
+    name: 'Fane Hukommelse',
+    description: 'Vis hukommelsesforbrug for åbne faner',
+    icon: 'tabmemory', category: 'info',
+    defaultConfig: {}, render: renderTabMemory
   }
 };
 
@@ -452,6 +513,478 @@ function renderColorPicker(container) {
     container.querySelectorAll('.color-swatch').forEach(s=>s.addEventListener('click',()=>{navigator.clipboard.writeText(s.dataset.color).then(()=>{const c=container.querySelector('.color-copied');c.style.display='block';c.textContent=s.dataset.color+' kopieret!';setTimeout(()=>c.style.display='none',1500);});}));
   }
   render();
+}
+
+// ============================================================
+//  PASSWORD GENERATOR
+// ============================================================
+
+function renderPassword(container) {
+  let length = 16;
+  let opts = { upper: true, lower: true, digits: true, symbols: true };
+
+  function generate() {
+    const chars = [];
+    if (opts.lower) chars.push('abcdefghijklmnopqrstuvwxyz');
+    if (opts.upper) chars.push('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+    if (opts.digits) chars.push('0123456789');
+    if (opts.symbols) chars.push('!@#$%^&*_-+=?');
+    const pool = chars.join('');
+    if (!pool) return '---';
+    const arr = new Uint32Array(length);
+    crypto.getRandomValues(arr);
+    return Array.from(arr, v => pool[v % pool.length]).join('');
+  }
+
+  function render() {
+    const pw = generate();
+    container.innerHTML = `<div class="widget-body widget-password-body">
+      <div class="pw-output" title="Klik for at kopiere">${pw}</div>
+      <div class="pw-strength">${length >= 20 ? 'Meget stærkt' : length >= 14 ? 'Stærkt' : length >= 10 ? 'Medium' : 'Svagt'}</div>
+      <div class="pw-controls">
+        <label class="pw-length-label">Længde: <strong>${length}</strong></label>
+        <input type="range" class="pw-range" min="4" max="64" value="${length}" />
+      </div>
+      <div class="pw-toggles">
+        <label class="pw-toggle"><input type="checkbox" ${opts.upper?'checked':''} data-opt="upper" /> A-Z</label>
+        <label class="pw-toggle"><input type="checkbox" ${opts.lower?'checked':''} data-opt="lower" /> a-z</label>
+        <label class="pw-toggle"><input type="checkbox" ${opts.digits?'checked':''} data-opt="digits" /> 0-9</label>
+        <label class="pw-toggle"><input type="checkbox" ${opts.symbols?'checked':''} data-opt="symbols" /> !@#</label>
+      </div>
+      <div class="pw-actions">
+        <button class="pw-btn pw-copy">Kopiér</button>
+        <button class="pw-btn pw-regen">Ny</button>
+      </div>
+      <div class="pw-copied" style="display:none">Kopieret!</div>
+    </div>`;
+
+    container.querySelector('.pw-output').addEventListener('click', () => copyPw());
+    container.querySelector('.pw-copy').addEventListener('click', () => copyPw());
+    container.querySelector('.pw-regen').addEventListener('click', () => render());
+    container.querySelector('.pw-range').addEventListener('input', e => {
+      length = parseInt(e.target.value);
+      render();
+    });
+    container.querySelectorAll('.pw-toggles input').forEach(cb => {
+      cb.addEventListener('change', () => { opts[cb.dataset.opt] = cb.checked; render(); });
+    });
+
+    function copyPw() {
+      navigator.clipboard.writeText(pw).then(() => {
+        const msg = container.querySelector('.pw-copied');
+        msg.style.display = 'block';
+        setTimeout(() => msg.style.display = 'none', 1500);
+      });
+    }
+  }
+  render();
+}
+
+// ============================================================
+//  TEXT TOOLS
+// ============================================================
+
+function renderTextTools(container) {
+  container.innerHTML = `<div class="widget-body widget-texttools-body">
+    <textarea class="tt-textarea" placeholder="Indsæt tekst her..."></textarea>
+    <div class="tt-stats">
+      <span class="tt-stat">Ord: <strong>0</strong></span>
+      <span class="tt-stat">Tegn: <strong>0</strong></span>
+      <span class="tt-stat">Linjer: <strong>0</strong></span>
+    </div>
+    <div class="tt-actions">
+      <button class="tt-btn" data-action="upper">STORE</button>
+      <button class="tt-btn" data-action="lower">sm&aring;</button>
+      <button class="tt-btn" data-action="title">Titel</button>
+      <button class="tt-btn" data-action="reverse">Omvend</button>
+      <button class="tt-btn" data-action="trim">Trim</button>
+      <button class="tt-btn" data-action="copy">Kopi&eacute;r</button>
+    </div>
+  </div>`;
+
+  const ta = container.querySelector('.tt-textarea');
+  const stats = container.querySelectorAll('.tt-stat strong');
+
+  function updateStats() {
+    const t = ta.value;
+    const words = t.trim() ? t.trim().split(/\s+/).length : 0;
+    const chars = t.length;
+    const lines = t ? t.split('\n').length : 0;
+    stats[0].textContent = words;
+    stats[1].textContent = chars;
+    stats[2].textContent = lines;
+  }
+
+  ta.addEventListener('input', updateStats);
+
+  container.querySelectorAll('.tt-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const a = btn.dataset.action;
+      if (a === 'upper') ta.value = ta.value.toUpperCase();
+      else if (a === 'lower') ta.value = ta.value.toLowerCase();
+      else if (a === 'title') ta.value = ta.value.replace(/\b\w/g, c => c.toUpperCase());
+      else if (a === 'reverse') ta.value = ta.value.split('').reverse().join('');
+      else if (a === 'trim') ta.value = ta.value.replace(/\s+/g, ' ').trim();
+      else if (a === 'copy') navigator.clipboard.writeText(ta.value);
+      updateStats();
+    });
+  });
+}
+
+// ============================================================
+//  BASE64 ENCODER/DECODER
+// ============================================================
+
+function renderBase64(container) {
+  container.innerHTML = `<div class="widget-body widget-base64-body">
+    <textarea class="b64-input" placeholder="Tekst at encode/decode..."></textarea>
+    <div class="b64-actions">
+      <button class="b64-btn b64-encode">Encode</button>
+      <button class="b64-btn b64-decode">Decode</button>
+      <button class="b64-btn b64-copy">Kopiér</button>
+    </div>
+    <textarea class="b64-output" placeholder="Resultat..." readonly></textarea>
+  </div>`;
+
+  const input = container.querySelector('.b64-input');
+  const output = container.querySelector('.b64-output');
+
+  container.querySelector('.b64-encode').addEventListener('click', () => {
+    try { output.value = btoa(unescape(encodeURIComponent(input.value))); }
+    catch { output.value = 'Fejl ved encoding'; }
+  });
+  container.querySelector('.b64-decode').addEventListener('click', () => {
+    try { output.value = decodeURIComponent(escape(atob(input.value))); }
+    catch { output.value = 'Ugyldig Base64'; }
+  });
+  container.querySelector('.b64-copy').addEventListener('click', () => {
+    navigator.clipboard.writeText(output.value);
+  });
+}
+
+// ============================================================
+//  LOREM IPSUM GENERATOR
+// ============================================================
+
+function renderLorem(container) {
+  const LOREM = [
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+    'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.',
+    'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum.',
+    'Excepteur sint occaecat cupidatat non proident, sunt in culpa.',
+    'Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit.',
+    'Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.',
+    'Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis.',
+    'Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse.',
+    'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.'
+  ];
+
+  let count = 3;
+  let mode = 'paragraphs';
+
+  function generate() {
+    const result = [];
+    for (let i = 0; i < count; i++) {
+      if (mode === 'paragraphs') {
+        const sentences = [];
+        const num = 3 + Math.floor(Math.random() * 4);
+        for (let j = 0; j < num; j++) sentences.push(LOREM[(i * 7 + j) % LOREM.length]);
+        result.push(sentences.join(' '));
+      } else {
+        result.push(LOREM[i % LOREM.length]);
+      }
+    }
+    return result.join(mode === 'paragraphs' ? '\n\n' : ' ');
+  }
+
+  function render() {
+    const text = generate();
+    container.innerHTML = `<div class="widget-body widget-lorem-body">
+      <div class="lorem-controls">
+        <select class="lorem-select">
+          <option value="paragraphs" ${mode==='paragraphs'?'selected':''}>Afsnit</option>
+          <option value="sentences" ${mode==='sentences'?'selected':''}>Sætninger</option>
+        </select>
+        <input type="number" class="lorem-count" value="${count}" min="1" max="20" />
+        <button class="lorem-gen-btn">Generér</button>
+      </div>
+      <div class="lorem-output">${text}</div>
+      <button class="lorem-copy-btn">Kopiér tekst</button>
+    </div>`;
+
+    container.querySelector('.lorem-select').addEventListener('change', e => { mode = e.target.value; });
+    container.querySelector('.lorem-count').addEventListener('change', e => { count = Math.max(1, Math.min(20, parseInt(e.target.value) || 3)); });
+    container.querySelector('.lorem-gen-btn').addEventListener('click', render);
+    container.querySelector('.lorem-copy-btn').addEventListener('click', () => navigator.clipboard.writeText(text));
+  }
+  render();
+}
+
+// ============================================================
+//  DEEP WEATHER
+// ============================================================
+
+async function renderDeepWeather(container) {
+  container.innerHTML = `<div class="widget-body widget-deepweather-body"><div class="dw-loading">Henter vejrdata...</div></div>`;
+
+  try {
+    const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, { timeout: 5000 }));
+    const { latitude: lat, longitude: lon } = pos.coords;
+    const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,weather_code,uv_index,surface_pressure&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto&forecast_days=5`);
+    const data = await resp.json();
+    const c = data.current;
+
+    const weatherDesc = {
+      0:'Klar himmel',1:'Overvejende klar',2:'Delvist skyet',3:'Overskyet',
+      45:'Tåge',48:'Rimtåge',51:'Let regn',53:'Moderat regn',55:'Kraftig regn',
+      61:'Let regn',63:'Moderat regn',65:'Kraftig regn',71:'Let sne',73:'Moderat sne',
+      75:'Kraftig sne',80:'Regnbyger',81:'Moderate byger',82:'Voldsomme byger',
+      95:'Tordenvejr',96:'Tordenvejr m. hagl',99:'Kraftigt tordenvejr'
+    };
+
+    const windDir = ['N','NØ','Ø','SØ','S','SV','V','NV'];
+    const dir = windDir[Math.round(c.wind_direction_10m / 45) % 8];
+
+    const daily = data.daily;
+    let forecastHTML = '';
+    const dayNames = ['Søn','Man','Tir','Ons','Tor','Fre','Lør'];
+    for (let i = 1; i < Math.min(5, daily.time.length); i++) {
+      const d = new Date(daily.time[i]);
+      forecastHTML += `<div class="dw-forecast-day">
+        <span class="dw-day-name">${dayNames[d.getDay()]}</span>
+        <span class="dw-day-temps">${Math.round(daily.temperature_2m_min[i])}° / ${Math.round(daily.temperature_2m_max[i])}°</span>
+        <span class="dw-day-desc">${weatherDesc[daily.weather_code[i]] || '?'}</span>
+      </div>`;
+    }
+
+    container.innerHTML = `<div class="widget-body widget-deepweather-body">
+      <div class="dw-current">
+        <div class="dw-temp">${Math.round(c.temperature_2m)}°C</div>
+        <div class="dw-desc">${weatherDesc[c.weather_code] || 'Ukendt'}</div>
+        <div class="dw-feels">Føles som ${Math.round(c.apparent_temperature)}°C</div>
+      </div>
+      <div class="dw-details">
+        <div class="dw-detail"><span class="dw-detail-label">Vind</span><span class="dw-detail-value">${Math.round(c.wind_speed_10m)} km/t ${dir}</span></div>
+        <div class="dw-detail"><span class="dw-detail-label">Fugtighed</span><span class="dw-detail-value">${c.relative_humidity_2m}%</span></div>
+        <div class="dw-detail"><span class="dw-detail-label">UV-index</span><span class="dw-detail-value">${c.uv_index}</span></div>
+        <div class="dw-detail"><span class="dw-detail-label">Lufttryk</span><span class="dw-detail-value">${Math.round(c.surface_pressure)} hPa</span></div>
+      </div>
+      <div class="dw-forecast">${forecastHTML}</div>
+    </div>`;
+  } catch (err) {
+    container.innerHTML = `<div class="widget-body widget-deepweather-body">
+      <div class="widget-empty-state">
+        <div class="widget-empty-icon">${ICONS.weather}</div>
+        <p>Kunne ikke hente vejrdata</p>
+        <p class="widget-empty-hint">Tillad lokation for at se vejret</p>
+      </div>
+    </div>`;
+  }
+}
+
+// ============================================================
+//  SNAKE GAME
+// ============================================================
+
+function renderSnake(container) {
+  const CELL = 12, COLS = 16, ROWS = 14;
+  const W = COLS * CELL, H = ROWS * CELL;
+
+  container.innerHTML = `<div class="widget-body widget-snake-body">
+    <div class="snake-header"><span class="snake-score">Score: 0</span><button class="snake-start-btn">Start</button></div>
+    <canvas class="snake-canvas" width="${W}" height="${H}"></canvas>
+    <div class="snake-hint">Brug piletaster / WASD</div>
+  </div>`;
+
+  const canvas = container.querySelector('.snake-canvas');
+  const ctx = canvas.getContext('2d');
+  const scoreEl = container.querySelector('.snake-score');
+  const startBtn = container.querySelector('.snake-start-btn');
+
+  let snake, food, dir, nextDir, score, gameLoop, running;
+
+  function init() {
+    snake = [{ x: 8, y: 7 }, { x: 7, y: 7 }, { x: 6, y: 7 }];
+    dir = { x: 1, y: 0 }; nextDir = { ...dir };
+    score = 0; running = true;
+    placeFood();
+    scoreEl.textContent = 'Score: 0';
+    startBtn.textContent = 'Genstart';
+  }
+
+  function placeFood() {
+    do { food = { x: Math.floor(Math.random() * COLS), y: Math.floor(Math.random() * ROWS) }; }
+    while (snake.some(s => s.x === food.x && s.y === food.y));
+  }
+
+  function draw() {
+    // Background
+    const style = getComputedStyle(document.documentElement);
+    ctx.fillStyle = style.getPropertyValue('--bg-card').trim() || '#1a1410';
+    ctx.fillRect(0, 0, W, H);
+
+    // Food
+    ctx.fillStyle = '#e74c3c';
+    ctx.beginPath();
+    ctx.arc(food.x * CELL + CELL / 2, food.y * CELL + CELL / 2, CELL / 2 - 1, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Snake
+    const accent = style.getPropertyValue('--accent').trim() || '#d4a35a';
+    snake.forEach((s, i) => {
+      ctx.fillStyle = i === 0 ? accent : accent + 'cc';
+      ctx.fillRect(s.x * CELL + 1, s.y * CELL + 1, CELL - 2, CELL - 2);
+    });
+  }
+
+  function tick() {
+    if (!running) return;
+    dir = { ...nextDir };
+    const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+
+    // Wall collision — wrap around
+    if (head.x < 0) head.x = COLS - 1;
+    if (head.x >= COLS) head.x = 0;
+    if (head.y < 0) head.y = ROWS - 1;
+    if (head.y >= ROWS) head.y = 0;
+
+    // Self collision
+    if (snake.some(s => s.x === head.x && s.y === head.y)) {
+      running = false;
+      startBtn.textContent = 'Prøv igen';
+      return;
+    }
+
+    snake.unshift(head);
+    if (head.x === food.x && head.y === food.y) {
+      score++;
+      scoreEl.textContent = `Score: ${score}`;
+      placeFood();
+    } else {
+      snake.pop();
+    }
+    draw();
+  }
+
+  function start() {
+    clearInterval(gameLoop);
+    init();
+    draw();
+    gameLoop = setInterval(tick, 120);
+  }
+
+  startBtn.addEventListener('click', start);
+
+  // Keyboard controls
+  const keyHandler = (e) => {
+    if (!running) return;
+    const map = { ArrowUp: { x: 0, y: -1 }, ArrowDown: { x: 0, y: 1 }, ArrowLeft: { x: -1, y: 0 }, ArrowRight: { x: 1, y: 0 },
+                  w: { x: 0, y: -1 }, s: { x: 0, y: 1 }, a: { x: -1, y: 0 }, d: { x: 1, y: 0 },
+                  W: { x: 0, y: -1 }, S: { x: 0, y: 1 }, A: { x: -1, y: 0 }, D: { x: 1, y: 0 } };
+    const nd = map[e.key];
+    if (nd && !(nd.x === -dir.x && nd.y === -dir.y)) {
+      nextDir = nd;
+      e.preventDefault();
+    }
+  };
+  document.addEventListener('keydown', keyHandler);
+
+  // Draw initial empty board
+  draw();
+}
+
+// ============================================================
+//  NET INFO
+// ============================================================
+
+function renderNetInfo(container) {
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+
+  async function render() {
+    let ip = 'Ukendt';
+    try {
+      const resp = await fetch('https://api.ipify.org?format=json');
+      const data = await resp.json();
+      ip = data.ip;
+    } catch {}
+
+    const type = conn ? (conn.effectiveType || conn.type || 'Ukendt') : 'Ukendt';
+    const downlink = conn ? (conn.downlink || '?') : '?';
+    const rtt = conn ? (conn.rtt || '?') : '?';
+    const online = navigator.onLine;
+
+    container.innerHTML = `<div class="widget-body widget-netinfo-body">
+      <div class="ni-status ${online ? 'ni-online' : 'ni-offline'}">${online ? 'Online' : 'Offline'}</div>
+      <div class="ni-details">
+        <div class="ni-row"><span class="ni-label">IP-adresse</span><span class="ni-value ni-ip">${ip}</span></div>
+        <div class="ni-row"><span class="ni-label">Forbindelse</span><span class="ni-value">${type.toUpperCase()}</span></div>
+        <div class="ni-row"><span class="ni-label">Hastighed</span><span class="ni-value">${downlink} Mbps</span></div>
+        <div class="ni-row"><span class="ni-label">Latens</span><span class="ni-value">${rtt} ms</span></div>
+      </div>
+      <button class="ni-copy-ip" title="Kopiér IP">Kopiér IP</button>
+    </div>`;
+
+    container.querySelector('.ni-copy-ip')?.addEventListener('click', () => {
+      navigator.clipboard.writeText(ip);
+      const btn = container.querySelector('.ni-copy-ip');
+      btn.textContent = 'Kopieret!';
+      setTimeout(() => btn.textContent = 'Kopiér IP', 1500);
+    });
+  }
+  render();
+}
+
+// ============================================================
+//  TAB MEMORY USAGE
+// ============================================================
+
+function renderTabMemory(container) {
+  function render() {
+    const perf = performance.memory;
+    const hasMemoryAPI = !!perf;
+
+    if (!hasMemoryAPI) {
+      // Fallback: show basic performance info
+      const entries = performance.getEntriesByType('navigation');
+      const nav = entries[0];
+      const loadTime = nav ? Math.round(nav.loadEventEnd - nav.startTime) : '?';
+      const domReady = nav ? Math.round(nav.domContentLoadedEventEnd - nav.startTime) : '?';
+
+      container.innerHTML = `<div class="widget-body widget-tabmemory-body">
+        <div class="tm-header">Fane Ydelse</div>
+        <div class="tm-details">
+          <div class="tm-row"><span class="tm-label">Side indlæst</span><span class="tm-value">${loadTime} ms</span></div>
+          <div class="tm-row"><span class="tm-label">DOM klar</span><span class="tm-value">${domReady} ms</span></div>
+          <div class="tm-row"><span class="tm-label">Ressourcer</span><span class="tm-value">${performance.getEntriesByType('resource').length}</span></div>
+          <div class="tm-row"><span class="tm-label">Opløsning</span><span class="tm-value">${screen.width}x${screen.height}</span></div>
+          <div class="tm-row"><span class="tm-label">Pixel ratio</span><span class="tm-value">${devicePixelRatio}x</span></div>
+          <div class="tm-row"><span class="tm-label">Farveskema</span><span class="tm-value">${matchMedia('(prefers-color-scheme:dark)').matches?'Mørk':'Lys'}</span></div>
+        </div>
+      </div>`;
+      return;
+    }
+
+    const used = (perf.usedJSHeapSize / 1048576).toFixed(1);
+    const total = (perf.totalJSHeapSize / 1048576).toFixed(1);
+    const limit = (perf.jsHeapSizeLimit / 1048576).toFixed(0);
+    const pct = ((perf.usedJSHeapSize / perf.jsHeapSizeLimit) * 100).toFixed(1);
+
+    container.innerHTML = `<div class="widget-body widget-tabmemory-body">
+      <div class="tm-header">JS Hukommelse</div>
+      <div class="tm-bar-wrap"><div class="tm-bar" style="width:${pct}%"></div></div>
+      <div class="tm-pct">${pct}% brugt</div>
+      <div class="tm-details">
+        <div class="tm-row"><span class="tm-label">Brugt</span><span class="tm-value">${used} MB</span></div>
+        <div class="tm-row"><span class="tm-label">Allokeret</span><span class="tm-value">${total} MB</span></div>
+        <div class="tm-row"><span class="tm-label">Grænse</span><span class="tm-value">${limit} MB</span></div>
+        <div class="tm-row"><span class="tm-label">Ressourcer</span><span class="tm-value">${performance.getEntriesByType('resource').length}</span></div>
+      </div>
+    </div>`;
+  }
+
+  render();
+  setInterval(render, 5000);
 }
 
 // ============================================================
