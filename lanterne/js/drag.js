@@ -16,8 +16,7 @@ export async function resetPositions(container) {
 
 /**
  * Called after every widget render to attach drag handles.
- * Drag is always active — no edit mode needed.
- * Keeps widgets fully within the viewport at all times.
+ * Drag handle is placed inside .widget-card-actions next to settings/remove buttons.
  */
 export async function setupDrag(container) {
   if (!positions) {
@@ -34,16 +33,23 @@ export async function setupDrag(container) {
     widget.classList.add('widget-draggable');
     widget.setAttribute('data-drag-id', id);
 
-    const handle = document.createElement('div');
-    handle.className = 'widget-drag-handle';
+    // Insert drag handle into .widget-card-actions (before the first button)
+    const actionsContainer = widget.querySelector('.widget-card-actions');
+    const handle = document.createElement('button');
+    handle.className = 'widget-action-btn widget-drag-handle';
+    handle.title = 'Flyt widget';
     handle.innerHTML = `
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="9" cy="5" r="1"/><circle cx="15" cy="5" r="1"/>
-        <circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/>
-        <circle cx="9" cy="19" r="1"/><circle cx="15" cy="19" r="1"/>
+        <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/>
+        <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
+        <circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
       </svg>
     `;
-    widget.prepend(handle);
+    if (actionsContainer) {
+      actionsContainer.prepend(handle);
+    } else {
+      widget.prepend(handle);
+    }
 
     // Track the current transform offset for this widget
     let currentX = positions[id]?.x || 0;

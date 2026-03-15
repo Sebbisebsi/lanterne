@@ -1137,28 +1137,11 @@
 }
 
 .widget-drag-handle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  color: var(--text-muted);
   cursor: grab;
-  transition: all var(--transition);
-  z-index: 10;
-  opacity: 0;
-}
-
-.widget-card:hover .widget-drag-handle {
-  opacity: 1;
 }
 
 .widget-drag-handle:hover {
-  color: var(--accent);
+  color: var(--accent) !important;
   background: var(--accent-soft);
 }
 
