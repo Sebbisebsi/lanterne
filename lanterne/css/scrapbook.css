@@ -1,31 +1,46 @@
-/* Scrapbook trigger button */
-.scrapbook-trigger {
+/* Top action bar */
+.top-bar {
   position: fixed;
-  bottom: 2rem;
-  right: 2rem;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  pointer-events: none;
 }
 
-.scrapbook-btn {
+.top-bar-left,
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: auto;
+}
+
+.top-bar-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  background: var(--bg-secondary);
+  width: 38px;
+  height: 38px;
+  background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 50%;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   cursor: pointer;
-  transition: all var(--transition);
-  box-shadow: var(--shadow-sm);
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-.scrapbook-btn:hover {
-  background: var(--accent-soft);
-  border-color: var(--accent);
+.top-bar-btn:hover {
   color: var(--accent);
-  transform: scale(1.05);
+  border-color: var(--border-hover);
+  background: var(--accent-soft);
+  box-shadow: 0 0 20px var(--accent-glow);
 }
 
 /* Scrapbook panel */

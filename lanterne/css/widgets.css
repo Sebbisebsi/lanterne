@@ -1,0 +1,289 @@
+.widgets-section {
+  width: 100%;
+  max-width: 720px;
+}
+
+.widgets-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.widget-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  transition: all var(--transition);
+  display: flex;
+  flex-direction: column;
+  min-height: 120px;
+}
+
+.widget-card:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-card-hover);
+}
+
+.widget-icon {
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+  opacity: 0.7;
+}
+
+/* Quote widget */
+.quote-text {
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  font-style: italic;
+  font-weight: 300;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+  flex: 1;
+}
+
+.quote-author {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-style: normal;
+}
+
+/* Timer widget */
+.timer-display {
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+
+.timer-time {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 300;
+  color: var(--accent);
+}
+
+.timer-label {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.timer-presets {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+.timer-preset {
+  padding: 0.35rem 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.timer-preset:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.timer-progress {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.timer-progress-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 1s linear;
+}
+
+.timer-btn {
+  padding: 0.3rem 0.6rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  align-self: center;
+}
+
+.timer-btn:hover {
+  border-color: #e74c3c;
+  color: #e74c3c;
+}
+
+/* Notepad widget */
+.notepad-textarea {
+  width: 100%;
+  flex: 1;
+  min-height: 60px;
+  max-height: 120px;
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+}
+
+.notepad-textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+/* ========== Drag System ========== */
+
+/* Toolbar */
+.widget-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.widget-edit-btn,
+.widget-reset-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.widget-edit-btn:hover,
+.widget-reset-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-hover);
+  color: var(--text-secondary);
+}
+
+.widget-edit-btn.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.widget-reset-btn:hover {
+  border-color: #e74c3c;
+  color: #e74c3c;
+}
+
+/* Drag handle — hidden by default */
+.widget-drag-handle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  color: var(--text-muted);
+  cursor: grab;
+  transition: all var(--transition);
+  z-index: 10;
+  opacity: 0;
+}
+
+.widget-drag-handle:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* Edit mode — show drag handles and add visual cues */
+.edit-mode .widget-card {
+  position: relative;
+}
+
+.edit-mode .widget-drag-handle {
+  display: flex;
+  opacity: 1;
+}
+
+.edit-mode .widget-card {
+  border-style: dashed;
+  cursor: default;
+}
+
+.edit-mode .widget-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px var(--accent-soft);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.edit-mode .widget-card:hover::after {
+  opacity: 1;
+}
+
+/* Dragging state */
+.widget-card.dragging {
+  opacity: 0.85;
+  z-index: 100;
+  box-shadow: var(--shadow), 0 0 30px var(--accent-glow);
+  cursor: grabbing;
+  transition: none;
+}
+
+.widget-card.dragging .widget-drag-handle {
+  cursor: grabbing;
+  color: var(--accent);
+}
+
+/* Ensure widget cards can be positioned with transform */
+.widget-draggable {
+  will-change: transform;
+  transition: transform var(--transition), opacity var(--transition), box-shadow var(--transition);
+}
+
+.widget-draggable.dragging {
+  transition: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .widgets-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .widget-card {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 1024px) and (min-width: 769px) {
+  .widgets-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}

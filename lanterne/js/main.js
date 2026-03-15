@@ -7,6 +7,9 @@ import { initRituals } from './rituals.js';
 import { initQuickLinks } from './quicklinks.js';
 import { initScrapbook } from './scrapbook.js';
 import { initSettings } from './settings.js';
+import { initWidgets } from './widgets.js';
+import { initSounds } from './sounds.js';
+import { initDrag } from './drag.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   // Load saved settings
@@ -25,24 +28,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.documentElement.setAttribute('data-theme', 'light');
   }
 
-  // Remove Chrome's injected new tab page elements
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      mutation.addedNodes.forEach((node) => {
-        if (node.nodeType === 1) {
-          // Hide any elements Chrome injects outside our content
-          if (node.id && ['ntp-contents', 'oneGoogleBar', 'content'].includes(node.id)) {
-            node.style.display = 'none';
-          }
-          // Hide elements with fixed positioning at the bottom (Chrome's overlay)
-          if (node.style && node.style.position === 'fixed' && node.style.bottom !== undefined) {
-            node.style.display = 'none';
-          }
-        }
-      });
+  // Aggressively remove Chrome's injected new tab page elements
+  const OUR_IDS = new Set([
+    'bg-layer', 'bg-overlay', 'ambience-canvas', 'clock-section',
+    'clock', 'greeting', 'date-display', 'weather', 'search-section',
+    'quicklinks-section', 'rituals-section', 'widgets-section',
+    'scrapbook-btn', 'scrapbook-panel', 'settings-trigger',
+    'settings-panel', 'sound-trigger'
+  ]);
+
+  function hideChromeCrap() {
+    document.querySelectorAll('body > *').forEach(el => {
+      if (el.tagName === 'SCRIPT') return;
+      if (el.classList.contains('background-layer')) return;
+      if (el.classList.contains('background-overlay')) return;
+      if (el.classList.contains('ambience-canvas')) return;
+      if (el.classList.contains('content')) return;
+      if (el.classList.contains('top-bar')) return;
+      if (el.classList.contains('scrapbook-panel')) return;
+      if (el.classList.contains('settings-panel')) return;
+      if (el.tagName === 'CANVAS' && el.id === 'ambience-canvas') return;
+      if (OUR_IDS.has(el.id)) return;
+      // It's not ours — hide it
+      el.style.cssText = 'display:none!important;visibility:hidden!important;';
     });
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
+  }
+
+  hideChromeCrap();
+  const observer = new MutationObserver(() => hideChromeCrap());
+  observer.observe(document.body, { childList: true, subtree: false });
 
   // Initialize all modules
   await initClock(
@@ -62,6 +76,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   initQuickLinks(document.getElementById('quicklinks-section'));
 
   initRituals(document.getElementById('rituals-section'));
+
+  // Initialize widgets
+  await initWidgets(document.getElementById('widgets-section'));
+
+  // Initialize drag system for widgets
+  await initDrag(document.getElementById('widgets-section'));
+
+  // Initialize ambient sounds
+  initSounds(document.getElementById('sound-trigger'));
 
   initScrapbook(
     document.getElementById('scrapbook-btn'),
