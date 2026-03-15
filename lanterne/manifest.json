@@ -1,13 +1,17 @@
 {
   "manifest_version": 3,
   "name": "Lanterne",
-  "version": "0.1.0",
-  "description": "Dit varme, personlige udgangspunkt. En ny fane der føles som hjem.",
+  "version": "0.2.0",
+  "description": "Dit varme, personlige udgangspunkt. En ny fane der f\u00f8les som hjem.",
   "chrome_url_overrides": {
     "newtab": "newtab.html"
   },
   "permissions": ["storage", "activeTab", "tabs"],
   "host_permissions": ["https://api.open-meteo.com/*"],
+  "web_accessible_resources": [{
+    "resources": ["sounds/*"],
+    "matches": ["<all_urls>"]
+  }],
   "icons": {
     "16": "icons/lanterne-16.png",
     "48": "icons/lanterne-48.png",

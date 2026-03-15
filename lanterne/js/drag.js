@@ -1,20 +1,16 @@
 import { get, set } from './storage.js';
 
-const SNAP_SIZE = 20; // pixels to snap to
-const SNAP_THRESHOLD = 12; // how close before snapping
+const SNAP_SIZE = 20;
+const SNAP_THRESHOLD = 12;
 
 /**
  * Makes widget cards draggable within the widgets container.
  * Positions are saved to storage and restored on load.
- *
- * Usage: initDrag(containerElement)
- * Each child with class .widget-draggable becomes draggable.
  */
 export async function initDrag(container) {
   const positions = await get('widgetPositions', {});
   let editMode = false;
 
-  // Create edit mode toggle button
   const editBtn = document.createElement('button');
   editBtn.className = 'widget-edit-btn';
   editBtn.title = 'Flyt widgets';
@@ -25,7 +21,7 @@ export async function initDrag(container) {
       <path d="M15 9l4-4"/>
       <path d="M15 15l4 4"/>
     </svg>
-    <span>Rediger layout</span>
+    <span>Flyt</span>
   `;
 
   const resetBtn = document.createElement('button');
@@ -40,45 +36,31 @@ export async function initDrag(container) {
     Nulstil
   `;
 
-  const toolbar = document.createElement('div');
-  toolbar.className = 'widget-toolbar';
-  toolbar.appendChild(editBtn);
-  toolbar.appendChild(resetBtn);
-  container.prepend(toolbar);
+  // Insert into existing toolbar
+  const toolbar = container.querySelector('.widgets-toolbar');
+  if (toolbar) {
+    toolbar.prepend(resetBtn);
+    toolbar.prepend(editBtn);
+  }
 
   editBtn.addEventListener('click', () => {
     editMode = !editMode;
     container.classList.toggle('edit-mode', editMode);
     editBtn.classList.toggle('active', editMode);
-    editBtn.querySelector('span').textContent = editMode ? 'Gem layout' : 'Rediger layout';
+    editBtn.querySelector('span').textContent = editMode ? 'Gem' : 'Flyt';
     resetBtn.style.display = editMode ? '' : 'none';
   });
 
   resetBtn.addEventListener('click', async () => {
     await set('widgetPositions', {});
-    // Remove all custom positions
     container.querySelectorAll('.widget-draggable').forEach(el => {
       el.style.transform = '';
-      el.style.order = '';
     });
-    // Reset the grid
-    const row = container.querySelector('.widgets-row');
-    if (row) {
-      row.style.position = '';
-      row.querySelectorAll('[data-widget-id]').forEach(el => {
-        el.style.position = '';
-        el.style.left = '';
-        el.style.top = '';
-        el.style.transform = '';
-        el.removeAttribute('data-placed');
-      });
-    }
   });
 
   // Wait for widgets to render
   await new Promise(r => setTimeout(r, 100));
 
-  // Find all widget cards and make them draggable
   const widgets = container.querySelectorAll('.widget-card');
   widgets.forEach((widget, i) => {
     const id = widget.closest('[data-widget-id]')?.dataset.widgetId ||
@@ -87,7 +69,6 @@ export async function initDrag(container) {
     widget.classList.add('widget-draggable');
     widget.setAttribute('data-drag-id', id);
 
-    // Add drag handle
     const handle = document.createElement('div');
     handle.className = 'widget-drag-handle';
     handle.innerHTML = `
@@ -99,13 +80,10 @@ export async function initDrag(container) {
     `;
     widget.prepend(handle);
 
-    // Restore saved position
     if (positions[id]) {
-      const p = positions[id];
-      widget.style.transform = `translate(${p.x}px, ${p.y}px)`;
+      widget.style.transform = `translate(${positions[id].x}px, ${positions[id].y}px)`;
     }
 
-    // Drag logic
     let startX, startY, currentX = 0, currentY = 0, isDragging = false;
 
     if (positions[id]) {
@@ -140,7 +118,6 @@ export async function initDrag(container) {
       let x = point.clientX - startX;
       let y = point.clientY - startY;
 
-      // Snap to grid
       if (Math.abs(x % SNAP_SIZE) < SNAP_THRESHOLD) {
         x = Math.round(x / SNAP_SIZE) * SNAP_SIZE;
       }
@@ -162,7 +139,6 @@ export async function initDrag(container) {
       document.removeEventListener('touchmove', onMove);
       document.removeEventListener('touchend', onEnd);
 
-      // Save position
       positions[id] = { x: currentX, y: currentY };
       await set('widgetPositions', positions);
     }

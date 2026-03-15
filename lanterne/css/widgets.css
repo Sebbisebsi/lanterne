@@ -1,23 +1,53 @@
 .widgets-section {
   width: 100%;
-  max-width: 720px;
+  max-width: 780px;
 }
 
+/* Toolbar */
+.widgets-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.6rem;
+}
+
+.widget-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  background: var(--bg-card);
+  border: 1px dashed var(--border);
+  border-radius: 100px;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.widget-add-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-style: solid;
+}
+
+/* Grid */
 .widgets-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 0.75rem;
 }
 
+/* Cards */
 .widget-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 1.25rem;
   transition: all var(--transition);
   display: flex;
   flex-direction: column;
-  min-height: 120px;
+  overflow: hidden;
 }
 
 .widget-card:hover {
@@ -25,22 +55,97 @@
   background: var(--bg-card-hover);
 }
 
-.widget-icon {
-  color: var(--accent);
-  margin-bottom: 0.75rem;
-  opacity: 0.7;
+/* Card header */
+.widget-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem 0;
+  min-height: 32px;
 }
 
-/* Quote widget */
+.widget-card-icon {
+  color: var(--accent);
+  opacity: 0.7;
+  flex-shrink: 0;
+  display: flex;
+}
+
+.widget-card-title {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.widget-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.widget-card:hover .widget-card-actions {
+  opacity: 1;
+}
+
+.widget-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.widget-action-btn:hover {
+  background: var(--bg-card);
+  color: var(--text-secondary);
+}
+
+.widget-remove-btn:hover {
+  color: #e74c3c;
+}
+
+/* Card content */
+.widget-card-content {
+  padding: 0.5rem 1rem 1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.widget-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ====== QUOTE WIDGET ====== */
+.widget-quote-body {
+  justify-content: center;
+  min-height: 80px;
+}
+
 .quote-text {
   font-family: var(--font-display);
   font-size: 0.88rem;
   font-style: italic;
   font-weight: 300;
   color: var(--text-secondary);
-  line-height: 1.5;
+  line-height: 1.55;
   margin-bottom: 0.5rem;
-  flex: 1;
 }
 
 .quote-author {
@@ -50,17 +155,31 @@
   font-style: normal;
 }
 
-/* Timer widget */
+/* ====== TIMER WIDGET ====== */
+.widget-timer-body {
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .timer-display {
   text-align: center;
-  margin-bottom: 0.75rem;
 }
 
 .timer-time {
   font-family: var(--font-display);
-  font-size: 1.8rem;
+  font-size: 2rem;
   font-weight: 300;
   color: var(--accent);
+  letter-spacing: 0.02em;
+}
+
+.timer-colon {
+  opacity: 0.5;
+}
+
+.timer-seconds {
+  color: var(--text-muted);
+  font-size: 1.6rem;
 }
 
 .timer-label {
@@ -71,18 +190,19 @@
 
 .timer-presets {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.35rem;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .timer-preset {
-  padding: 0.35rem 0.75rem;
+  padding: 0.3rem 0.65rem;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text-secondary);
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   cursor: pointer;
   transition: all var(--transition);
 }
@@ -94,11 +214,11 @@
 }
 
 .timer-progress {
+  width: 100%;
   height: 3px;
   background: var(--border);
   border-radius: 2px;
   overflow: hidden;
-  margin-bottom: 0.5rem;
 }
 
 .timer-progress-bar {
@@ -109,16 +229,15 @@
 }
 
 .timer-btn {
-  padding: 0.3rem 0.6rem;
+  padding: 0.3rem 0.7rem;
   background: transparent;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text-muted);
   font-family: var(--font-body);
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   cursor: pointer;
   transition: all var(--transition);
-  align-self: center;
 }
 
 .timer-btn:hover {
@@ -126,13 +245,22 @@
   color: #e74c3c;
 }
 
-/* Notepad widget */
+.timer-active {
+  animation: timerGlow 2s ease-in-out infinite;
+}
+
+@keyframes timerGlow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+
+/* ====== NOTEPAD WIDGET ====== */
 .notepad-textarea {
   width: 100%;
   flex: 1;
   min-height: 60px;
-  max-height: 120px;
-  padding: 0.5rem;
+  max-height: 150px;
+  padding: 0.4rem;
   background: transparent;
   border: none;
   color: var(--text-secondary);
@@ -148,23 +276,420 @@
   opacity: 0.5;
 }
 
-/* ========== Drag System ========== */
-
-/* Toolbar */
-.widget-toolbar {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
+/* ====== YOUTUBE WIDGET ====== */
+.youtube-embed {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  border-radius: var(--radius-xs);
 }
 
+.youtube-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-xs);
+}
+
+/* ====== WORLD CLOCK WIDGET ====== */
+.widget-worldclock-body {
+  gap: 0.35rem;
+}
+
+.worldclock-zone {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.worldclock-zone:last-child {
+  border-bottom: none;
+}
+
+.worldclock-label {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.worldclock-time {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  letter-spacing: 0.03em;
+}
+
+/* ====== COUNTDOWN WIDGET ====== */
+.widget-countdown-body {
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.countdown-label {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.countdown-grid {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.countdown-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.countdown-number {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 300;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.countdown-unit-label {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.15rem;
+}
+
+.countdown-reached {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--accent);
+  text-align: center;
+  animation: breathe 2s ease-in-out infinite;
+}
+
+/* ====== BOOKMARKS WIDGET ====== */
+.bookmarks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.bookmark-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: var(--radius-xs);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.8rem;
+  transition: all var(--transition);
+}
+
+.bookmark-item:hover {
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.bookmark-favicon {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* ====== RANDOMIZER WIDGET ====== */
+.widget-randomizer-body {
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.randomizer-result {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 300;
+  color: var(--accent);
+  text-align: center;
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.randomizer-spin {
+  transform: scale(0.5) rotate(180deg);
+  opacity: 0.3;
+}
+
+.randomizer-actions {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.randomizer-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.6rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.randomizer-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* ====== EMPTY STATE ====== */
+.widget-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 80px;
+  gap: 0.25rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.widget-empty-icon {
+  opacity: 0.4;
+  margin-bottom: 0.25rem;
+}
+
+.widget-empty-hint {
+  font-size: 0.68rem;
+  opacity: 0.6;
+}
+
+/* ====== WIDGET SETTINGS MODAL ====== */
+.widget-settings-overlay,
+.widget-gallery-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: fadeInUp 0.2s ease;
+}
+
+.widget-settings-modal,
+.widget-gallery-modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  width: 90%;
+  max-width: 420px;
+  box-shadow: var(--shadow);
+}
+
+.ws-header,
+.wg-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.ws-header h3,
+.wg-header h3 {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.ws-icon {
+  color: var(--accent);
+  display: flex;
+}
+
+.ws-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.35rem;
+  margin-top: 0.75rem;
+}
+
+.ws-label:first-child {
+  margin-top: 0;
+}
+
+.ws-input,
+.ws-textarea {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.ws-input:focus,
+.ws-textarea:focus {
+  border-color: var(--accent);
+}
+
+.ws-textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.ws-hint {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 0.35rem;
+}
+
+.ws-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1.25rem;
+}
+
+.ws-cancel,
+.ws-save {
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  border: none;
+}
+
+.ws-cancel {
+  background: var(--bg-card);
+  color: var(--text-secondary);
+}
+
+.ws-cancel:hover {
+  background: var(--bg-card-hover);
+}
+
+.ws-save {
+  background: var(--accent);
+  color: #fff;
+}
+
+.ws-save:hover {
+  filter: brightness(1.1);
+}
+
+/* ====== WIDGET GALLERY MODAL ====== */
+.wg-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all var(--transition);
+}
+
+.wg-close:hover {
+  color: var(--text-secondary);
+  background: var(--bg-card);
+}
+
+.wg-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.wg-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+  text-align: left;
+  width: 100%;
+}
+
+.wg-item:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.wg-item-icon {
+  color: var(--accent);
+  flex-shrink: 0;
+  display: flex;
+}
+
+.wg-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.wg-item-name {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.wg-item-desc {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.wg-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 1.5rem;
+}
+
+/* ====== DRAG TOOLBAR ====== */
 .widget-edit-btn,
 .widget-reset-btn {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.85rem;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 100px;
@@ -193,7 +718,7 @@
   color: #e74c3c;
 }
 
-/* Drag handle — hidden by default */
+/* ====== DRAG SYSTEM ====== */
 .widget-drag-handle {
   display: none;
   align-items: center;
@@ -216,9 +741,9 @@
   background: var(--accent-soft);
 }
 
-/* Edit mode — show drag handles and add visual cues */
 .edit-mode .widget-card {
   position: relative;
+  border-style: dashed;
 }
 
 .edit-mode .widget-drag-handle {
@@ -226,27 +751,6 @@
   opacity: 1;
 }
 
-.edit-mode .widget-card {
-  border-style: dashed;
-  cursor: default;
-}
-
-.edit-mode .widget-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  box-shadow: inset 0 0 0 1px var(--accent-soft);
-  opacity: 0;
-  transition: opacity var(--transition);
-}
-
-.edit-mode .widget-card:hover::after {
-  opacity: 1;
-}
-
-/* Dragging state */
 .widget-card.dragging {
   opacity: 0.85;
   z-index: 100;
@@ -255,30 +759,20 @@
   transition: none;
 }
 
-.widget-card.dragging .widget-drag-handle {
-  cursor: grabbing;
-  color: var(--accent);
-}
-
-/* Ensure widget cards can be positioned with transform */
 .widget-draggable {
   will-change: transform;
-  transition: transform var(--transition), opacity var(--transition), box-shadow var(--transition);
+  transition: transform var(--transition);
 }
 
 .widget-draggable.dragging {
   transition: none;
 }
 
-/* Responsive */
+/* ====== RESPONSIVE ====== */
 @media (max-width: 768px) {
   .widgets-row {
     grid-template-columns: 1fr;
     gap: 0.5rem;
-  }
-
-  .widget-card {
-    min-height: auto;
   }
 }
 

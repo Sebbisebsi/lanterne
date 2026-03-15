@@ -21,12 +21,23 @@
 }
 
 .sound-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-family: var(--font-body);
   font-size: 0.75rem;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-bottom: 0.75rem;
+}
+
+.sound-now-playing {
+  font-size: 0.65rem;
+  color: var(--accent);
+  text-transform: none;
+  letter-spacing: 0;
+  animation: breathe 2s ease-in-out infinite;
 }
 
 .sound-options {
