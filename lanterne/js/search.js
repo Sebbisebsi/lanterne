@@ -11,15 +11,23 @@ export async function initSearch(container) {
         <input
           type="text"
           class="search-input"
-          placeholder="Søg..."
+          placeholder="S&oslash;g..."
           autofocus
         />
+        <span class="search-shortcut-hint">/</span>
       </div>
     </form>
   `;
 
   const form = container.querySelector('.search-form');
   const input = container.querySelector('.search-input');
+  const hint = container.querySelector('.search-shortcut-hint');
+
+  // Hide hint when focused or has text
+  input.addEventListener('focus', () => hint.classList.add('hidden'));
+  input.addEventListener('blur', () => {
+    if (!input.value) hint.classList.remove('hidden');
+  });
 
   // Use Chrome Search API — respects the user's chosen default search engine
   form.addEventListener('submit', (e) => {
@@ -30,11 +38,25 @@ export async function initSearch(container) {
     }
   });
 
-  // Focus search on any keypress when not in an input
+  // Focus search on "/" or any printable keypress when not in an input
   document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+      e.preventDefault();
+      input.focus();
+      return;
+    }
     if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
       input.focus();
+    }
+  });
+
+  // Escape blurs the search input and clears it
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      input.value = '';
+      input.blur();
+      hint.classList.remove('hidden');
     }
   });
 }

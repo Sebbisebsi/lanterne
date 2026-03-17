@@ -25,6 +25,7 @@ function truncateUrl(url, maxLen = 40) {
 export async function initScrapbook(triggerBtn, panel) {
   let items = await get('scrapbook', []);
   let isOpen = false;
+  let searchQuery = '';
 
   triggerBtn.addEventListener('click', () => {
     isOpen = !isOpen;
@@ -46,26 +47,6 @@ export async function initScrapbook(triggerBtn, panel) {
     }
   });
 
-  // Keyboard shortcut: Escape closes
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && isOpen) {
-      isOpen = false;
-      panel.classList.remove('open');
-    }
-  });
-
-  async function addManualClip() {
-    // Show inline add form
-    const form = panel.querySelector('.scrapbook-add-form');
-    if (form) {
-      form.style.display = form.style.display === 'none' ? 'flex' : 'none';
-      if (form.style.display === 'flex') {
-        form.querySelector('.scrapbook-add-title').focus();
-      }
-      return;
-    }
-  }
-
   async function saveItem(title, url, note = '') {
     const item = {
       id: 's_' + Date.now(),
@@ -79,18 +60,38 @@ export async function initScrapbook(triggerBtn, panel) {
     render();
   }
 
+  function getFiltered() {
+    if (!searchQuery) return items;
+    const q = searchQuery.toLowerCase();
+    return items.filter(item =>
+      (item.title && item.title.toLowerCase().includes(q)) ||
+      (item.url && item.url.toLowerCase().includes(q)) ||
+      (item.note && item.note.toLowerCase().includes(q))
+    );
+  }
+
   function render() {
+    const filtered = getFiltered();
+
     panel.innerHTML = `
       <div class="scrapbook-inner">
         <div class="scrapbook-header">
           <h3>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
             Scrapbook
+            ${items.length > 0 ? `<span class="scrapbook-count">${items.length}</span>` : ''}
           </h3>
           <button class="scrapbook-close-btn" title="Luk">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
+
+        ${items.length > 3 ? `
+        <div class="scrapbook-search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="scrapbook-search-input" type="text" placeholder="S&oslash;g i scrapbook..." value="${escapeHTML(searchQuery)}" />
+        </div>
+        ` : ''}
 
         <div class="scrapbook-add-section">
           <button class="scrapbook-add-toggle">
@@ -109,13 +110,13 @@ export async function initScrapbook(triggerBtn, panel) {
         </div>
 
         <div class="scrapbook-list">
-          ${items.length === 0
+          ${filtered.length === 0
             ? `<div class="scrapbook-empty">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted); opacity: 0.5;"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
-                <p>Din scrapbook er tom</p>
-                <p class="scrapbook-hint">Gem links, noter og ideer her</p>
+                <p>${searchQuery ? 'Ingen resultater' : 'Din scrapbook er tom'}</p>
+                <p class="scrapbook-hint">${searchQuery ? 'Pr&oslash;v et andet s&oslash;geord' : 'Gem links, noter og ideer her'}</p>
               </div>`
-            : items.map(item => `
+            : filtered.map(item => `
               <div class="scrapbook-item" data-id="${item.id}">
                 <div class="scrapbook-item-top">
                   ${item.url
@@ -142,6 +143,21 @@ export async function initScrapbook(triggerBtn, panel) {
       panel.classList.remove('open');
     });
 
+    // Search input
+    const searchInput = panel.querySelector('.scrapbook-search-input');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value;
+        render();
+        // Re-focus and restore cursor position
+        const newInput = panel.querySelector('.scrapbook-search-input');
+        if (newInput) {
+          newInput.focus();
+          newInput.setSelectionRange(newInput.value.length, newInput.value.length);
+        }
+      });
+    }
+
     // Toggle add form
     const toggleBtn = panel.querySelector('.scrapbook-add-toggle');
     const addForm = panel.querySelector('.scrapbook-add-form');
@@ -165,6 +181,7 @@ export async function initScrapbook(triggerBtn, panel) {
       const url = addForm.querySelector('.scrapbook-add-url').value.trim();
       const note = addForm.querySelector('.scrapbook-add-note').value.trim();
       if (title || url) {
+        searchQuery = ''; // Clear search on add
         await saveItem(title || 'Unavngivet', url, note);
       }
     });

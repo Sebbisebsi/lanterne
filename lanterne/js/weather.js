@@ -7,11 +7,11 @@ const WEATHER_MAP = {
   1: { icon: 'cloud-sun', da: 'Overvejende klart' },
   2: { icon: 'cloud-sun', da: 'Delvist skyet' },
   3: { icon: 'cloud', da: 'Overskyet' },
-  45: { icon: 'cloud', da: 'Tåge' },
-  48: { icon: 'cloud', da: 'Rimtåge' },
-  51: { icon: 'cloud-drizzle', da: 'Let støvregn' },
-  53: { icon: 'cloud-drizzle', da: 'Støvregn' },
-  55: { icon: 'cloud-drizzle', da: 'Kraftig støvregn' },
+  45: { icon: 'cloud', da: 'T\u00e5ge' },
+  48: { icon: 'cloud', da: 'Rimt\u00e5ge' },
+  51: { icon: 'cloud-drizzle', da: 'Let st\u00f8vregn' },
+  53: { icon: 'cloud-drizzle', da: 'St\u00f8vregn' },
+  55: { icon: 'cloud-drizzle', da: 'Kraftig st\u00f8vregn' },
   61: { icon: 'cloud-rain', da: 'Let regn' },
   63: { icon: 'cloud-rain', da: 'Regn' },
   65: { icon: 'cloud-rain', da: 'Kraftig regn' },
@@ -39,8 +39,18 @@ const ICONS = {
   'cloud-drizzle': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M8 19v1"/><path d="M8 14v1"/><path d="M16 19v1"/><path d="M16 14v1"/><path d="M12 21v1"/><path d="M12 16v1"/></svg>',
   'cloud-rain': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>',
   'snowflake': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/><path d="m16 4-4 4-4-4"/><path d="m8 20 4-4 4 4"/></svg>',
-  'cloud-lightning': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973"/><path d="m13 12-3 5h4l-3 5"/></svg>'
+  'cloud-lightning': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973"/><path d="m13 12-3 5h4l-3 5"/></svg>',
+  'wind': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg>'
 };
+
+// Wind chill / heat index approximation for "feels like"
+function feelsLike(tempC, windKmh) {
+  if (tempC <= 10 && windKmh > 4.8) {
+    // Wind chill (Environment Canada formula)
+    return Math.round(13.12 + 0.6215 * tempC - 11.37 * Math.pow(windKmh, 0.16) + 0.3965 * tempC * Math.pow(windKmh, 0.16));
+  }
+  return tempC; // No significant correction
+}
 
 function getWeatherInfo(code) {
   return WEATHER_MAP[code] || { icon: 'cloud', da: 'Ukendt' };
@@ -91,7 +101,7 @@ export async function initWeather(container) {
     }
   } catch (err) {
     console.log('Weather unavailable:', err.message);
-    // Show nothing if weather fails — not critical
+    // Show nothing if weather fails -- not critical
     container.innerHTML = '';
   }
 }
@@ -99,16 +109,34 @@ export async function initWeather(container) {
 function render(container, data, unit = 'celsius') {
   const info = getWeatherInfo(data.code);
   let temp = data.temp; // Celsius from API
-  let symbol = '°C';
+  const feels = feelsLike(data.temp, data.windSpeed || 0);
+  let symbol = '\u00b0C';
+  let displayTemp = temp;
+  let displayFeels = feels;
+
   if (unit === 'fahrenheit') {
-    temp = Math.round(temp * 9 / 5 + 32);
-    symbol = '°F';
+    displayTemp = Math.round(temp * 9 / 5 + 32);
+    displayFeels = Math.round(feels * 9 / 5 + 32);
+    symbol = '\u00b0F';
   }
 
+  const showFeels = Math.abs(feels - temp) >= 2;
+  const windDisplay = data.windSpeed ? `${Math.round(data.windSpeed)} km/t` : '';
+
   container.innerHTML = `
-    ${ICONS[info.icon] || ICONS['cloud']}
-    <span>${temp}${symbol}</span>
-    <span class="weather-separator">·</span>
+    <span class="weather-main">
+      ${ICONS[info.icon] || ICONS['cloud']}
+      <span>${displayTemp}${symbol}</span>
+    </span>
+    <span class="weather-separator">\u00b7</span>
     <span>${info.da}</span>
+    ${windDisplay ? `
+      <span class="weather-separator">\u00b7</span>
+      <span class="weather-detail">${ICONS['wind']} ${windDisplay}</span>
+    ` : ''}
+    ${showFeels ? `
+      <span class="weather-separator">\u00b7</span>
+      <span class="weather-detail weather-feels">F\u00f8les som ${displayFeels}${symbol}</span>
+    ` : ''}
   `;
 }

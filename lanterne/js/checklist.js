@@ -2,7 +2,7 @@ import { get, set, escapeHTML } from './storage.js';
 
 const DEFAULT_ITEMS = [
   { id: 'c_1', text: 'Tjek e-mails', icon: 'mail' },
-  { id: 'c_2', text: 'Planlæg dagens opgaver', icon: 'list' },
+  { id: 'c_2', text: 'Planl\u00e6g dagens opgaver', icon: 'list' },
   { id: 'c_3', text: 'Tag en pause', icon: 'coffee' }
 ];
 
@@ -21,6 +21,7 @@ const CHECKLIST_ICONS = {
 export async function initChecklist(container) {
   let items = await get('checklistItems', DEFAULT_ITEMS);
   let completions = await get('checklistCompletions', {});
+  let dragIdx = null;
 
   // Reset completions if it's a new day
   const today = new Date().toISOString().split('T')[0];
@@ -51,10 +52,13 @@ export async function initChecklist(container) {
           <div class="checklist-progress-fill" style="width: ${progress}%"></div>
         </div>
         <div class="checklist-items">
-          ${items.map(item => {
+          ${items.map((item, idx) => {
             const done = completions[item.id] || false;
             return `
-              <div class="checklist-item ${done ? 'done' : ''}" data-id="${item.id}">
+              <div class="checklist-item ${done ? 'done' : ''}" data-id="${item.id}" data-idx="${idx}" draggable="true">
+                <span class="checklist-drag-handle" title="Tr&aelig;k for at flytte">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg>
+                </span>
                 <button class="checklist-check">${done ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}</button>
                 <span class="checklist-icon">${CHECKLIST_ICONS[item.icon] || CHECKLIST_ICONS.check}</span>
                 <span class="checklist-text">${escapeHTML(item.text)}</span>
@@ -67,7 +71,7 @@ export async function initChecklist(container) {
         </div>
         <button class="checklist-add-btn">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          <span>Tilføj punkt</span>
+          <span>Tilf&oslash;j punkt</span>
         </button>
       </div>
     `;
@@ -94,6 +98,36 @@ export async function initChecklist(container) {
       });
     });
 
+    // Drag reorder
+    container.querySelectorAll('.checklist-item[draggable]').forEach(el => {
+      el.addEventListener('dragstart', (e) => {
+        dragIdx = parseInt(el.dataset.idx, 10);
+        el.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      el.addEventListener('dragend', () => {
+        el.classList.remove('dragging');
+        dragIdx = null;
+        container.querySelectorAll('.checklist-item').forEach(i => i.classList.remove('drag-over'));
+      });
+      el.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        el.classList.add('drag-over');
+      });
+      el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+      el.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        el.classList.remove('drag-over');
+        const dropIdx = parseInt(el.dataset.idx, 10);
+        if (dragIdx === null || dragIdx === dropIdx) return;
+        const moved = items.splice(dragIdx, 1)[0];
+        items.splice(dropIdx, 0, moved);
+        await set('checklistItems', items);
+        render();
+      });
+    });
+
     // Add item
     container.querySelector('.checklist-add-btn').addEventListener('click', () => {
       showAddModal();
@@ -108,8 +142,8 @@ export async function initChecklist(container) {
 
     overlay.innerHTML = `
       <div class="checklist-modal">
-        <h3>Tilføj punkt</h3>
-        <input type="text" class="checklist-input" placeholder="Hvad skal du gøre?" maxlength="40" />
+        <h3>Tilf&oslash;j punkt</h3>
+        <input type="text" class="checklist-input" placeholder="Hvad skal du g&oslash;re?" maxlength="40" />
         <label class="checklist-label">Ikon</label>
         <div class="checklist-icon-picker">
           ${Object.entries(CHECKLIST_ICONS).map(([name, svg]) =>
@@ -118,7 +152,7 @@ export async function initChecklist(container) {
         </div>
         <div class="checklist-modal-actions">
           <button class="checklist-cancel">Annuller</button>
-          <button class="checklist-save">Tilføj</button>
+          <button class="checklist-save">Tilf&oslash;j</button>
         </div>
       </div>
     `;

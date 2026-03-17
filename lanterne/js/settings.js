@@ -1,4 +1,4 @@
-import { get, set, getSyncEnabled, setSyncEnabled } from './storage.js';
+import { get, set, getAll, getSyncEnabled, setSyncEnabled } from './storage.js';
 
 export const DEFAULT_SETTINGS = {
   theme: 'dark',
@@ -459,8 +459,37 @@ export async function initSettings(triggerBtn, panel, liveCallbacks = {}) {
           <p class="settings-hint" style="opacity:0.6"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 3px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Baggrundsbilleder synkroniseres <strong>ikke</strong> (for store til Chrome Sync).</p>
         </div>
 
+        <div class="settings-section">
+          <h4>Data</h4>
+          <div class="settings-row">
+            <label>Eksporter indstillinger</label>
+            <button class="settings-action-btn" id="settings-export">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Eksporter
+            </button>
+          </div>
+          <div class="settings-row">
+            <label>Importer indstillinger</label>
+            <label class="settings-action-btn" id="settings-import-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Importer
+              <input type="file" id="settings-import" accept=".json" style="display:none" />
+            </label>
+          </div>
+          <p class="settings-hint">Eksporter/importer alle indstillinger, genveje, tjekliste og scrapbook som JSON.</p>
+
+          <div class="settings-row">
+            <label>Nulstil alt</label>
+            <button class="settings-action-btn settings-action-btn-danger" id="settings-reset">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+              Nulstil
+            </button>
+          </div>
+          <p class="settings-hint">Sletter alle data og nulstiller til standard. Kan ikke fortrydes.</p>
+        </div>
+
         <div class="settings-footer">
-          <span class="settings-version">Lanterne v0.7.1</span>
+          <span class="settings-version">Lanterne v0.9.9</span>
         </div>
       </div>
     `;
@@ -734,6 +763,64 @@ export async function initSettings(triggerBtn, panel, liveCallbacks = {}) {
         await setSyncEnabled(newVal);
         settings._syncEnabled = newVal;
         render();
+      });
+    }
+
+    // Export settings
+    const exportBtn = panel.querySelector('#settings-export');
+    if (exportBtn) {
+      exportBtn.addEventListener('click', async () => {
+        const allData = await getAll();
+        // Remove ephemeral/large keys
+        delete allData.backgroundImage;
+        delete allData.weatherCache;
+        const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `lanterne-backup-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    }
+
+    // Import settings
+    const importInput = panel.querySelector('#settings-import');
+    if (importInput) {
+      importInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async () => {
+          try {
+            const data = JSON.parse(reader.result);
+            if (typeof data !== 'object' || data === null) throw new Error('Ugyldigt format');
+            for (const [k, v] of Object.entries(data)) {
+              if (k === 'backgroundImage') continue; // Skip large data
+              await set(k, v);
+            }
+            location.reload();
+          } catch (err) {
+            alert('Kunne ikke importere: ' + err.message);
+          }
+        };
+        reader.readAsText(file);
+      });
+    }
+
+    // Reset all
+    const resetBtn = panel.querySelector('#settings-reset');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', async () => {
+        if (!confirm('Er du sikker? Dette sletter ALLE dine indstillinger, genveje, tjekliste og scrapbook. Kan ikke fortrydes.')) return;
+        if (!confirm('Helt sikker? Der er ingen vej tilbage.')) return;
+        if (typeof chrome !== 'undefined' && chrome.storage) {
+          await new Promise(r => chrome.storage.local.clear(r));
+          await new Promise(r => chrome.storage.sync.clear(r));
+        } else {
+          localStorage.clear();
+        }
+        location.reload();
       });
     }
   }
