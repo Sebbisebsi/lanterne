@@ -1,19 +1,6 @@
-import { get, set } from './storage.js';
-
-const ENGINES = {
-  google: { name: 'Google', url: 'https://www.google.com/search?q=' },
-  duckduckgo: { name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=' },
-  brave: { name: 'Brave', url: 'https://search.brave.com/search?q=' },
-  startpage: { name: 'Startpage', url: 'https://www.startpage.com/do/search?q=' },
-  youtube: { name: 'YouTube', url: 'https://www.youtube.com/results?search_query=' },
-  wikipedia: { name: 'Wikipedia', url: 'https://da.wikipedia.org/w/index.php?search=' }
-};
+import { get } from './storage.js';
 
 export async function initSearch(container) {
-  const settings = await get('settings', {});
-  const engineKey = settings.searchEngine || 'google';
-  const engine = ENGINES[engineKey] || ENGINES.google;
-
   container.innerHTML = `
     <form class="search-form" autocomplete="off">
       <div class="search-wrapper">
@@ -24,50 +11,23 @@ export async function initSearch(container) {
         <input
           type="text"
           class="search-input"
-          placeholder="S\u00f8g p\u00e5 ${engine.name}..."
+          placeholder="Søg..."
           autofocus
         />
-        <button type="button" class="search-engine-btn" title="Skift s\u00f8gemaskine">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
-        </button>
-      </div>
-      <div class="search-engines" style="display: none;">
-        ${Object.entries(ENGINES).map(([key, e]) =>
-          `<button type="button" class="search-engine-option ${key === engineKey ? 'active' : ''}" data-engine="${key}">${e.name}</button>`
-        ).join('')}
       </div>
     </form>
   `;
 
   const form = container.querySelector('.search-form');
   const input = container.querySelector('.search-input');
-  const engineBtn = container.querySelector('.search-engine-btn');
-  const enginesPanel = container.querySelector('.search-engines');
 
-  // Submit search
+  // Use Chrome Search API — respects the user's chosen default search engine
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const query = input.value.trim();
     if (query) {
-      window.location.href = engine.url + encodeURIComponent(query);
+      chrome.search.query({ text: query, disposition: 'CURRENT_TAB' });
     }
-  });
-
-  // Toggle engine picker
-  engineBtn.addEventListener('click', () => {
-    enginesPanel.style.display = enginesPanel.style.display === 'none' ? 'flex' : 'none';
-  });
-
-  // Select engine — read fresh settings, update only the engine key
-  container.querySelectorAll('.search-engine-option').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const current = await get('settings', {});
-      current.searchEngine = btn.dataset.engine;
-      await set('settings', current);
-      location.reload();
-    });
   });
 
   // Focus search on any keypress when not in an input

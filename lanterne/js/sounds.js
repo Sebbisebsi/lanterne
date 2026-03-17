@@ -126,6 +126,12 @@ export async function initSounds(triggerBtn) {
     }
   });
 
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && panel.style.display !== 'none') {
+      panel.style.display = 'none';
+    }
+  });
+
   triggerBtn.parentElement.appendChild(panel);
   updateUI();
 }

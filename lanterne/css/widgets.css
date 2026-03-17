@@ -89,6 +89,11 @@
   min-height: 80px;
 }
 
+.widget-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow), 0 0 0 1px var(--border-hover);
+}
+
 [data-theme="light"] .widget-card {
   background: rgba(248, 242, 234, 0.88);
   border-color: rgba(100, 70, 30, 0.12);
@@ -2587,4 +2592,403 @@
   flex-shrink: 0;
   min-width: 1.5rem;
   text-align: right;
+}
+
+/* ============================================================
+   JOURNAL (Dagbog) WIDGET
+   ============================================================ */
+
+.widget-journal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.jnl-mood-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.jnl-mood-btn {
+  background: none;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.jnl-mood-btn:hover {
+  border-color: var(--accent-soft);
+  transform: scale(1.15);
+}
+
+.jnl-mood-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  transform: scale(1.15);
+}
+
+.jnl-text {
+  width: 100%;
+  min-height: 3rem;
+  max-height: 6rem;
+  resize: vertical;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  padding: 0.4rem 0.5rem;
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.jnl-text:focus {
+  border-color: var(--accent);
+}
+
+.jnl-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.jnl-charcount {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.jnl-save-btn {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: none;
+  border-radius: 4px;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.7rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.jnl-save-btn:hover {
+  background: var(--accent);
+  color: var(--bg-main);
+}
+
+.jnl-history {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-top: 0.25rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.4rem;
+}
+
+.jnl-history-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.jnl-history-mood {
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.jnl-history-date {
+  flex-shrink: 0;
+  min-width: 4rem;
+  color: var(--text-secondary);
+}
+
+.jnl-history-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   MINI CALENDAR WIDGET
+   ============================================================ */
+
+.widget-minical-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.cal-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cal-nav button {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0 0.4rem;
+  line-height: 1;
+  transition: color var(--transition);
+}
+
+.cal-nav button:hover {
+  color: var(--accent);
+}
+
+.cal-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  text-align: center;
+}
+
+.cal-hdr {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 0.15rem 0;
+}
+
+.cal-day {
+  font-size: 0.65rem;
+  padding: 0.2rem 0;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  transition: background var(--transition);
+}
+
+.cal-today {
+  background: var(--accent);
+  color: var(--bg-main);
+  font-weight: 700;
+  border-radius: 50%;
+}
+
+.cal-weekend {
+  color: var(--text-muted);
+}
+
+.cal-other {
+  color: rgba(255,255,255,0.15);
+}
+
+.cal-today-btn {
+  display: block;
+  margin: 0.2rem auto 0;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-size: 0.6rem;
+  font-family: var(--font-body);
+  padding: 0.15rem 0.5rem;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.cal-today-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ============================================================
+   GOALS WIDGET
+   ============================================================ */
+
+.widget-goals-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.goals-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  padding: 0.5rem 0;
+}
+
+.goals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 12rem;
+  overflow-y: auto;
+}
+
+.goal-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.goal-done .goal-name {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.goal-done .goal-bar {
+  background: #4caf50 !important;
+}
+
+.goal-header {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.goal-name {
+  font-size: 0.72rem;
+  color: var(--text-primary);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.goal-pct {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.goal-delete {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  opacity: 0;
+  transition: opacity var(--transition), color var(--transition);
+  flex-shrink: 0;
+}
+
+.goal-item:hover .goal-delete {
+  opacity: 1;
+}
+
+.goal-delete:hover {
+  color: #f44;
+}
+
+.goal-bar-wrap {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.goal-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.goal-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.goal-controls button {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  padding: 0;
+}
+
+.goal-controls button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.goal-progress {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  min-width: 3rem;
+  text-align: center;
+}
+
+.goals-add-row {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+  margin-top: 0.2rem;
+}
+
+.goals-name-input,
+.goals-target-input {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  padding: 0.3rem 0.4rem;
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.goals-target-input {
+  max-width: 4rem;
+}
+
+.goals-name-input:focus,
+.goals-target-input:focus {
+  border-color: var(--accent);
+}
+
+.goals-add-btn {
+  background: var(--accent-soft);
+  border: none;
+  color: var(--accent);
+  border-radius: 4px;
+  width: 1.6rem;
+  height: 1.6rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+
+.goals-add-btn:hover {
+  background: var(--accent);
+  color: var(--bg-main);
 }

@@ -39,6 +39,13 @@ export async function initScrapbook(triggerBtn, panel) {
     }
   });
 
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen) {
+      isOpen = false;
+      panel.classList.remove('open');
+    }
+  });
+
   // Keyboard shortcut: Escape closes
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && isOpen) {

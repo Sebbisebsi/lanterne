@@ -59,6 +59,12 @@
   border-color: var(--border-hover);
   background: var(--accent-soft);
   box-shadow: 0 0 20px var(--accent-glow);
+  transform: scale(1.08);
+}
+
+.top-bar-btn:active {
+  transform: scale(0.94);
+  transition-duration: 0.1s;
 }
 
 .top-bar-btn.active {

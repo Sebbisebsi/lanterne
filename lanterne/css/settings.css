@@ -187,6 +187,12 @@
 
 .settings-toggle-btn:hover {
   color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.settings-toggle-btn:active {
+  transform: scale(0.95);
+  transition-duration: 0.1s;
 }
 
 .settings-toggle-btn.active {
@@ -397,6 +403,96 @@
   font-family: var(--font-body);
   opacity: 0.6;
   letter-spacing: 0.05em;
+}
+
+/* Accent color presets */
+.settings-accent-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.settings-accent-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.settings-accent-dot:hover {
+  transform: scale(1.15);
+}
+
+.settings-accent-dot.active {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px var(--accent), 0 2px 8px rgba(0, 0, 0, 0.3);
+  transform: scale(1.1);
+}
+
+.settings-accent-custom {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px dashed var(--border-hover);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.settings-accent-custom:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.settings-accent-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+/* Auto-hide topbar */
+.auto-hide-bar .top-bar {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+}
+
+.auto-hide-bar .top-bar:hover,
+.auto-hide-bar .top-bar.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Hover zone at top of screen to reveal bar */
+.auto-hide-bar::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  z-index: 49;
+}
+
+.auto-hide-bar:hover .top-bar,
+.auto-hide-bar .top-bar:focus-within {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 /* ====== RESPONSIVE: MOBILE ====== */

@@ -10,6 +10,7 @@
   backdrop-filter: blur(20px);
   opacity: 0;
   transition: opacity 0.5s ease;
+  overflow: hidden;
 }
 
 .welcome-overlay.welcome-visible {
@@ -21,11 +22,39 @@
   pointer-events: none;
 }
 
+/* Background canvas for stars/embers/shooting stars */
+.welcome-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
 .welcome-card {
+  position: relative;
+  z-index: 1;
   max-width: 420px;
   width: 90%;
   text-align: center;
   padding: 2.5rem 2rem;
+}
+
+/* Step transition animation */
+@keyframes welcome-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.welcome-step-enter {
+  animation: welcome-step-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* Step dots */
@@ -41,7 +70,7 @@
   height: 7px;
   border-radius: 50%;
   background: rgba(255, 235, 200, 0.15);
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .welcome-dot.active {
@@ -54,11 +83,17 @@
   background: rgba(224, 144, 48, 0.5);
 }
 
-/* Icon */
+/* Icon with gentle float */
+@keyframes welcome-icon-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
 .welcome-icon {
   font-size: 3rem;
   margin-bottom: 1rem;
   filter: drop-shadow(0 0 20px rgba(224, 144, 48, 0.3));
+  animation: welcome-icon-float 3s ease-in-out infinite;
 }
 
 /* Typography */
@@ -119,7 +154,7 @@
   font-size: 0.95rem;
   text-align: center;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
   margin-bottom: 1.5rem;
 }
 
@@ -159,7 +194,7 @@
   border: 1px solid var(--border);
   background: rgba(255, 235, 200, 0.03);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -169,12 +204,18 @@
 .welcome-option:hover {
   border-color: var(--border-hover);
   background: rgba(255, 235, 200, 0.06);
+  transform: translateY(-2px);
+}
+
+.welcome-option:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.1s;
 }
 
 .welcome-option.selected {
   border-color: var(--accent);
   background: rgba(224, 144, 48, 0.08);
-  box-shadow: 0 0 0 1px var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 0 16px rgba(224, 144, 48, 0.1);
 }
 
 .welcome-option-sm {
@@ -212,9 +253,14 @@
   font-size: 0.82rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
   border: none;
   letter-spacing: 0.3px;
+}
+
+.welcome-btn:active {
+  transform: scale(0.96);
+  transition-duration: 0.1s;
 }
 
 .welcome-btn-primary {
@@ -226,6 +272,7 @@
 .welcome-btn-primary:hover {
   background: #c87820;
   box-shadow: 0 4px 16px rgba(224, 144, 48, 0.3);
+  transform: translateY(-1px);
 }
 
 .welcome-btn-secondary {
@@ -246,7 +293,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  animation: welcome-fade-in 0.6s ease;
 }
 
 .welcome-farewell-greeting {
@@ -265,9 +311,4 @@
   letter-spacing: 1px;
   text-transform: uppercase;
   font-weight: 400;
-}
-
-@keyframes welcome-fade-in {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
 }

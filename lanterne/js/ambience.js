@@ -761,10 +761,27 @@ export async function initAmbience(canvas, settingsOverride) {
 
   window.addEventListener('resize', resize);
 
+  // Pause when tab is hidden to save battery
+  let paused = false;
+  function onVisibility() {
+    if (document.hidden) {
+      paused = true;
+      cancelAnimationFrame(animId);
+    } else if (paused) {
+      paused = false;
+      animate();
+    }
+  }
+  document.addEventListener('visibilitychange', onVisibility);
+
   if (effectType !== 'ingen') {
     init();
     animate();
   }
 
-  return () => cancelAnimationFrame(animId);
+  return () => {
+    cancelAnimationFrame(animId);
+    document.removeEventListener('visibilitychange', onVisibility);
+    window.removeEventListener('resize', resize);
+  };
 }

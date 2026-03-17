@@ -17,7 +17,7 @@ Lanterne only collects data that is strictly necessary to provide the extension'
 *   **Settings and Widgets:** Data you enter into widgets (e.g., your name, checklists, and quicklinks) is stored locally on your device via the `chrome.storage.local` API. We do not have access to this data.
 *   **Weather Data:** If you enable the weather widget, Lanterne requests your location (latitude and longitude). This data is processed locally to fetch weather information via a secure connection.
 *   **Lectio Integration:** If you use the Lectio widget, you provide authentication cookies (SessionId, autologinkeyV2) which are stored locally on your device. These are used solely to fetch your schedule, homework, assignments, and grades from Lectio. Credentials are masked in the settings UI and never transmitted to any server other than lectio.dk.
-*   **Browser Activity and Tabs:** Lanterne requests the `tabs` and `activeTab` permissions to enable features that interact with your browser tabs. We do not collect, store, or track your browsing history or activity beyond what is necessary for these specific features.
+*   **Network Information:** If you enable the Network Info widget, Lanterne makes a request to api.ipify.org to display your public IP address. No personally identifiable information is stored or transmitted beyond this request.
 
 ### 3. DATA SHARING
 We only share data with third parties when necessary to provide the features you choose to use:
@@ -25,6 +25,7 @@ We only share data with third parties when necessary to provide the features you
 *   **Open-Meteo:** When you use the weather widget, your approximate location (latitude/longitude) is sent to Open-Meteo (https://open-meteo.com) to retrieve a weather forecast. No personally identifiable information is sent.
 *   **Google Favicon Service:** To display icons for your quicklinks, Lanterne may request favicons from Google's favicon service based on the domains you have added.
 *   **Lectio (lectio.dk):** When you use the Lectio widget, your stored authentication cookies are sent to lectio.dk to fetch your school data. No data is sent to any other service.
+*   **ipify (api.ipify.org):** When you use the Network Info widget, a request is made to api.ipify.org to retrieve your public IP address. No other data is transmitted.
 
 We do not sell, trade, or transfer your data to other third parties, data brokers, or advertising platforms.
 
@@ -57,7 +58,7 @@ Lanterne indsamler kun de data, der er strengt nødvendige for at levere extensi
 *   **Indstillinger og Widgets:** Data du indtaster i widgets (f.eks. dit navn, tjeklister og hurtiglinks) gemmes lokalt på din enhed via `chrome.storage.local` API'et. Vi har ikke adgang til disse data.
 *   **Vejrdata:** Hvis du aktiverer vejr-widgetten, anmoder Lanterne om din lokation (breddegrad og længdegrad). Disse data behandles lokalt for at hente vejrinformation via en sikker forbindelse.
 *   **Lectio-integration:** Hvis du bruger Lectio-widgetten, indtaster du autentificeringscookies (SessionId, autologinkeyV2), som gemmes lokalt på din enhed. De bruges udelukkende til at hente dit skema, lektier, opgaver og karakterer fra Lectio. Loginoplysninger er maskeret i indstillingerne og sendes aldrig til andre servere end lectio.dk.
-*   **Browseraktivitet og faner:** Lanterne anmoder om tilladelserne `tabs` og `activeTab` for at muliggøre funktioner, der interagerer med dine browserfaner. Vi indsamler, gemmer eller sporer ikke din browserhistorik eller aktivitet ud over, hvad der er nødvendigt for disse specifikke funktioner.
+*   **Netværksinformation:** Hvis du aktiverer Netværksinfo-widgetten, sender Lanterne en forespørgsel til api.ipify.org for at vise din offentlige IP-adresse. Ingen personhenførbare oplysninger gemmes eller overføres ud over denne forespørgsel.
 
 ### 3. DELING AF DATA
 Vi deler kun data med tredjeparter, når det er nødvendigt for at levere de funktioner, du vælger at bruge:
@@ -65,6 +66,7 @@ Vi deler kun data med tredjeparter, når det er nødvendigt for at levere de fun
 *   **Open-Meteo:** Når du bruger vejr-widgetten, sendes din omtrentlige lokation (breddegrad/længdegrad) til Open-Meteo (https://open-meteo.com) for at hente vejrudsigt. Ingen personhenførbare oplysninger sendes.
 *   **Google Favicon Service:** For at vise ikoner for dine hurtiglinks kan Lanterne anmode om favicons fra Googles favicon-tjeneste baseret på de domæner, du har tilføjet.
 *   **Lectio (lectio.dk):** Når du bruger Lectio-widgetten, sendes dine gemte autentificeringscookies til lectio.dk for at hente dine skoledata. Der sendes ingen data til andre tjenester.
+*   **ipify (api.ipify.org):** Når du bruger Netværksinfo-widgetten, sendes en forespørgsel til api.ipify.org for at hente din offentlige IP-adresse. Ingen andre data overføres.
 
 Vi hverken sælger, bytter eller overfører dine data til andre tredjeparter, datamæglere eller reklameplatforme.
 

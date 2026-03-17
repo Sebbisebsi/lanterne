@@ -79,7 +79,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     daynightCanvas.style.display = 'none';
   }
 
-  initAmbience(document.getElementById('ambience-canvas'), settings);
+  const ambienceCanvas = document.getElementById('ambience-canvas');
+  let destroyAmbience = await initAmbience(ambienceCanvas, settings);
   initSearch(document.getElementById('search-section'));
   initWeather(document.getElementById('weather'));
 
@@ -114,9 +115,52 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('scrapbook-panel')
   );
 
+  // Live settings callbacks — no more page reloads
+  const liveCallbacks = {
+    onThemeChange(theme) {
+      if (theme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+      // Toggle day-night canvas
+      if (theme === 'auto') {
+        daynightCanvas.style.display = '';
+        initDayNight(daynightCanvas);
+      } else {
+        daynightCanvas.style.display = 'none';
+      }
+    },
+    async onEffectChange(s) {
+      // Destroy old ambience and start new one
+      if (destroyAmbience) destroyAmbience();
+      destroyAmbience = await initAmbience(ambienceCanvas, s);
+    },
+    onClockChange(s) {
+      // Re-init clock with new format
+      const clockEl = document.getElementById('clock');
+      const greetEl = document.getElementById('greeting');
+      const dateEl = document.getElementById('date-display');
+      initClock(clockEl, greetEl, dateEl);
+    },
+    onWeatherChange(s) {
+      initWeather(document.getElementById('weather'));
+    },
+    onStatsChange(s) {
+      const map = { above: 'stats-above', below: 'stats-section', topbar: 'stats-topbar', content: 'stats-section' };
+      const newId = map[s.statsPosition] || 'stats-section';
+      for (const id of statsIds) {
+        const el = document.getElementById(id);
+        if (el) { el.style.display = id === newId ? '' : 'none'; el.innerHTML = ''; }
+      }
+      initStats(document.getElementById(newId));
+    }
+  };
+
   initSettings(
     document.getElementById('settings-trigger'),
-    document.getElementById('settings-panel')
+    document.getElementById('settings-panel'),
+    liveCallbacks
   );
 
   // Welcome screen (first launch only)

@@ -73,6 +73,9 @@ const ICONS = {
   timetrack: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/><path d="M22 12h-2"/><path d="M4 12H2"/></svg>',
   readinglist: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
   idlegame: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 5H9l3-5zM9 7h6v12H9V7zm-2 4h2m6 0h2m-6 4h2m2 0h2m-10 4h10"/></svg>',
+  journal: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M8 7h6"/><path d="M8 11h8"/></svg>',
+  calendar: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>',
+  goals: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 13V2l8 4-8 4"/><path d="M20.55 10.23A9 9 0 1 1 8 4.94"/><path d="M8 10a5 5 0 1 0 8.9 2.02"/></svg>',
   lectio: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="14" y2="11"/></svg>'
 };
 
@@ -273,10 +276,30 @@ const WIDGET_DEFS = {
     description: 'Gem artikler og links til senere',
     icon: 'readinglist', category: 'produktivitet',
     defaultConfig: {}, render: renderReadingList
+  },
+
+  // ---- NYE BRUGBARE WIDGETS ----
+  journal: {
+    name: 'Dagbog',
+    description: 'Daglig humør-tracker og korte journalnotater',
+    icon: 'journal', category: 'produktivitet',
+    defaultConfig: {}, render: renderJournal
+  },
+  minical: {
+    name: 'Kalender',
+    description: 'Mini-månedskalender med markerede datoer',
+    icon: 'calendar', category: 'produktivitet',
+    defaultConfig: {}, render: renderMiniCal
+  },
+  goals: {
+    name: 'Mål',
+    description: 'Sæt mål og følg din fremgang visuelt',
+    icon: 'goals', category: 'produktivitet',
+    defaultConfig: {}, render: renderGoals
   }
 };
 
-const DEFAULT_ENABLED = ['quote', 'timer', 'notepad'];
+const DEFAULT_ENABLED = [];
 
 // ============================================================
 //  RENDERERS
@@ -365,7 +388,7 @@ function renderYouTube(container, config) {
 
   function buildPlayer(id) {
     if (!id) return '';
-    return `<div class="youtube-player-wrap"><iframe class="youtube-iframe" src="https://www.youtube.com/embed/${id}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+    return `<div class="youtube-player-wrap"><iframe class="youtube-iframe" src="https://www.youtube-nocookie.com/embed/${id}?rel=0&enablejsapi=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen sandbox="allow-scripts allow-same-origin allow-popups"></iframe></div>`;
   }
 
   container.innerHTML = `<div class="widget-body widget-youtube-body">
@@ -1787,67 +1810,128 @@ async function renderLectio(container, config) {
       if (subj && karakterM) result.eksamen.push({ subject: subj, grade: karakterM[1].trim() });
     });
 
-    // Parse tables — look for rows with grade-like data
-    const tables = doc.querySelectorAll('table');
+    // Parse grade tables
+    const tables = [...doc.querySelectorAll('table')];
     console.log('[Lectio Widget] Grade tables found:', tables.length);
 
-    tables.forEach((table, ti) => {
-      const rows = table.querySelectorAll('tr');
-      if (rows.length < 2) return;
+    const validGrades = new Set(['-3', '00', '02', '2', '4', '7', '10', '12']);
+    const isValidGrade = (v) => v && validGrades.has(v);
 
-      // Try to identify header row to find column indices
-      const headerRow = rows[0];
-      const headers = [...headerRow.querySelectorAll('th, td')].map(c => c.textContent?.trim()?.toLowerCase() || '');
-      console.log(`[Lectio Widget] Grade table[${ti}] headers:`, headers.join(' | '), `rows: ${rows.length}`);
+    // Helper: get direct child cells only (avoids nested table pollution)
+    const directCells = (row) => [...row.children].filter(c => c.tagName === 'TD' || c.tagName === 'TH');
+    const directRows = (table) => {
+      const tbody = table.querySelector(':scope > tbody') || table;
+      return [...tbody.children].filter(r => r.tagName === 'TR');
+    };
+    const getHeaders = (table) => directCells(directRows(table)[0] || {}).map(c => c.textContent?.trim()?.toLowerCase() || '');
 
-      // Find column indices
-      const fagIdx = headers.findIndex(h => h.includes('fag'));
-      const typeIdx = headers.findIndex(h => h === 'type' || h.includes('prøveform'));
+    // Strategy 1: Standpunkt from the main overview table (hold | fag | ... | 1.standpunkt | ...)
+    // Uses direct children to avoid nested table issues
+    for (const table of tables) {
+      if (result.standpunkt.length) break;
+      const rows = directRows(table);
+      if (rows.length < 3) continue;
+      const headers = directCells(rows[0]).map(c => c.textContent?.trim()?.toLowerCase() || '');
+      const fagIdx = headers.findIndex(h => h === 'fag');
+      const standIdx = headers.findIndex(h => h.includes('standpunkt'));
+      if (fagIdx === -1 || standIdx === -1) continue;
 
-      // Find grade columns — look for "1. standpunkt", "2. standpunkt", "eksamen", "årskarakter"
-      const standpunktCols = [];
-      const eksamenCols = [];
-      headers.forEach((h, i) => {
-        if (h.includes('standpunkt') || h.includes('årskarakter')) standpunktCols.push(i);
-        if (h.includes('eksamen') || h.includes('prøve')) eksamenCols.push(i);
-      });
-
-      if (fagIdx === -1 && standpunktCols.length === 0 && eksamenCols.length === 0) return;
-
+      const hCount = headers.length;
       for (let r = 1; r < rows.length; r++) {
-        const cells = [...rows[r].querySelectorAll('td')];
-        if (cells.length < 2) continue;
-        const fag = cells[fagIdx >= 0 ? fagIdx : 0]?.textContent?.trim() || '';
-        if (!fag || fag.length < 2 || /^(Hold|Fag|Dato|Vægt|Termin)$/i.test(fag)) continue;
+        const cells = directCells(rows[r]);
+        const offset = hCount - cells.length;
+        const adjFag = fagIdx - (offset > 0 ? offset : 0);
+        const adjGrade = standIdx - (offset > 0 ? offset : 0);
+        if (adjFag < 0 || adjGrade < 0 || adjGrade >= cells.length) continue;
+        // Get only direct text content of the grade cell (not nested tables)
+        const fag = cells[adjFag]?.childNodes?.[0]?.textContent?.trim() || cells[adjFag]?.textContent?.trim() || '';
+        if (!fag || fag.length < 2) continue;
+        // For the grade cell, look for a direct text node with a valid grade
+        let grade = '';
+        for (const node of cells[adjGrade].childNodes) {
+          const t = node.textContent?.trim();
+          if (isValidGrade(t)) { grade = t; break; }
+        }
+        if (!grade) {
+          // The grade might be the full direct text
+          const t = cells[adjGrade]?.textContent?.trim();
+          if (isValidGrade(t)) grade = t;
+        }
+        if (grade) result.standpunkt.push({ subject: fag, grade });
+      }
+      console.log('[Lectio Widget] Standpunkt from overview table:', result.standpunkt.length);
+    }
 
-        // Extract standpunkt grades
-        for (const ci of standpunktCols) {
-          const v = cells[ci]?.textContent?.trim();
-          if (v && v !== '-' && v.length <= 3) {
-            result.standpunkt.push({ subject: fag, grade: v });
+    // Strategy 2: Summary table (fag | årskarakter | eksamenskarakter)
+    for (const table of tables) {
+      const rows = directRows(table);
+      if (rows.length < 3) continue;
+      const headers = directCells(rows[0]).map(c => c.textContent?.trim()?.toLowerCase() || '');
+      const fagIdx = headers.findIndex(h => h.includes('fag'));
+      const aarsIdx = headers.findIndex(h => h.includes('årskarakter'));
+      const eksIdx = headers.findIndex(h => h.includes('eksamenskarakter'));
+      if (fagIdx === -1 || (aarsIdx === -1 && eksIdx === -1)) continue;
+
+      const hCount = headers.length;
+      const parseStand = !result.standpunkt.length && aarsIdx !== -1;
+      const parseEks = !result.eksamen.length && eksIdx !== -1;
+      for (let r = 1; r < rows.length; r++) {
+        const cells = directCells(rows[r]);
+        const offset = hCount - cells.length;
+        const adj = (idx) => idx - (offset > 0 ? offset : 0);
+        const aF = adj(fagIdx);
+        if (aF < 0 || aF >= cells.length) continue;
+        const fag = cells[aF]?.textContent?.trim() || '';
+        if (!fag || fag.length < 2) continue;
+
+        if (parseStand) {
+          const aG = adj(aarsIdx);
+          if (aG >= 0 && aG < cells.length) {
+            const v = cells[aG]?.textContent?.trim();
+            if (isValidGrade(v)) result.standpunkt.push({ subject: fag, grade: v });
           }
         }
-
-        // Extract eksamen grades
-        for (const ci of eksamenCols) {
-          const v = cells[ci]?.textContent?.trim();
-          if (v && v !== '-' && v.length <= 3) {
-            result.eksamen.push({ subject: fag, grade: v });
-          }
-        }
-
-        // Fallback: if no specific columns found, look for any short grade-like values
-        if (standpunktCols.length === 0 && eksamenCols.length === 0) {
-          for (let i = cells.length - 1; i >= 1; i--) {
-            const v = cells[i]?.textContent?.trim() || '';
-            if (v && /^[A-F0-9]{1,2}$/.test(v)) {
-              result.standpunkt.push({ subject: fag, grade: v });
-              break;
-            }
+        if (parseEks) {
+          const aG = adj(eksIdx);
+          if (aG >= 0 && aG < cells.length) {
+            const v = cells[aG]?.textContent?.trim();
+            if (isValidGrade(v)) result.eksamen.push({ subject: fag, grade: v });
           }
         }
       }
-    });
+      if (result.standpunkt.length || result.eksamen.length) {
+        console.log('[Lectio Widget] From summary table — standpunkt:', result.standpunkt.length, 'eksamen:', result.eksamen.length);
+      }
+    }
+
+    // Parse weight table (termin | type | medtæller | xprs fag | ... | vægt | karakter | ...)
+    const weightMap = {}; // key: "subject|grade" → weight
+    for (const table of tables) {
+      const rows = directRows(table);
+      if (rows.length < 10) continue;
+      const headers = directCells(rows[0]).map(c => c.textContent?.trim()?.toLowerCase().replace(/\u00ad/g, '') || '');
+      const fagIdx = headers.findIndex(h => h.includes('xprs fag') || h === 'xprs fag');
+      const vægtIdx = headers.findIndex(h => h.includes('vægt'));
+      const karIdx = headers.findIndex(h => h === 'karakter');
+      if (fagIdx === -1 || vægtIdx === -1 || karIdx === -1) continue;
+
+      const hCount = headers.length;
+      for (let r = 1; r < rows.length; r++) {
+        const cells = directCells(rows[r]);
+        const offset = hCount - cells.length;
+        const adj = (idx) => idx - (offset > 0 ? offset : 0);
+        const aF = adj(fagIdx), aW = adj(vægtIdx), aK = adj(karIdx);
+        if (aF < 0 || aW < 0 || aK < 0 || aF >= cells.length || aW >= cells.length || aK >= cells.length) continue;
+        const fag = cells[aF]?.textContent?.trim() || '';
+        const vægt = parseFloat((cells[aW]?.textContent?.trim() || '').replace(',', '.'));
+        const kar = cells[aK]?.textContent?.trim() || '';
+        if (fag && !isNaN(vægt) && isValidGrade(kar)) {
+          weightMap[`${fag}|${kar}`] = vægt;
+        }
+      }
+      console.log('[Lectio Widget] Weight entries:', Object.keys(weightMap).length);
+      break;
+    }
 
     // Deduplicate
     const dedup = (arr) => {
@@ -1862,7 +1946,29 @@ async function renderLectio(container, config) {
     result.standpunkt = dedup(result.standpunkt);
     result.eksamen = dedup(result.eksamen);
 
+    // Calculate averages
+    const gradeNum = (g) => g === '00' ? 0 : g === '02' ? 2 : parseFloat(g);
+    const calcAvg = (list) => {
+      if (!list.length) return null;
+      const sum = list.reduce((s, g) => s + gradeNum(g.grade), 0);
+      return (sum / list.length).toFixed(1);
+    };
+    const calcWeightedAvg = (list) => {
+      let totalWeight = 0, weightedSum = 0;
+      for (const g of list) {
+        const w = weightMap[`${g.subject}|${g.grade}`] || 1;
+        weightedSum += gradeNum(g.grade) * w;
+        totalWeight += w;
+      }
+      return totalWeight > 0 ? (weightedSum / totalWeight).toFixed(1) : null;
+    };
+    result.standpunktAvg = calcAvg(result.standpunkt);
+    result.standpunktWeightedAvg = calcWeightedAvg(result.standpunkt);
+    result.eksamenAvg = calcAvg(result.eksamen);
+    result.eksamenWeightedAvg = calcWeightedAvg(result.eksamen);
+
     console.log('[Lectio Widget] Grades parsed — standpunkt:', result.standpunkt.length, 'eksamen:', result.eksamen.length);
+    console.log('[Lectio Widget] Averages — standpunkt:', result.standpunktAvg, 'weighted:', result.standpunktWeightedAvg, 'eksamen:', result.eksamenAvg, 'weighted:', result.eksamenWeightedAvg);
     cache.karakterer = result;
     return result;
   }
@@ -1993,13 +2099,21 @@ async function renderLectio(container, config) {
           const gradeColor = g.grade === '-' ? 'var(--text-muted)' : 'var(--accent)';
           return `<div class="lectio-grade-row"><span class="lectio-grade-subj">${esc(g.subject)}</span><span class="lectio-grade-val" style="color:${gradeColor}">${esc(g.grade)}</span></div>`;
         }).join('');
+        const renderAvg = (avg, weightedAvg) => {
+          if (!avg) return '';
+          let text = `Gns: ${avg}`;
+          if (weightedAvg && weightedAvg !== avg) text += ` · Vægtet: ${weightedAvg}`;
+          return `<div class="lectio-grade-row lectio-grade-avg"><span class="lectio-grade-subj" style="font-weight:600;">Gennemsnit</span><span class="lectio-grade-val" style="color:var(--accent);font-weight:600;">${text}</span></div>`;
+        };
         if (hasStand) {
           html += `<div class="lectio-section-header">Standpunkt</div>`;
           html += renderGradeList(grades.standpunkt);
+          html += renderAvg(grades.standpunktAvg, grades.standpunktWeightedAvg);
         }
         if (hasEks) {
           html += `<div class="lectio-section-header" style="margin-top:0.5rem;">Eksamen</div>`;
           html += renderGradeList(grades.eksamen);
+          html += renderAvg(grades.eksamenAvg, grades.eksamenWeightedAvg);
         }
         body.innerHTML = html;
       }
@@ -2054,6 +2168,256 @@ function showWidgetSettingsModal(widgetId, currentConfig, onSave) {
     else if (widgetId === 'lectio') { nc.schoolId = overlay.querySelector('#ws-lectio-school').value.trim(); nc.sessionId = overlay.querySelector('#ws-lectio-session').value.trim(); nc.autoKey = overlay.querySelector('#ws-lectio-autokey').value.trim(); nc.elevId = overlay.querySelector('#ws-lectio-elevid').value.trim(); }
     onSave(nc); close();
   });
+}
+
+// ============================================================
+//  JOURNAL (Dagbog) — mood tracker + short daily notes
+// ============================================================
+
+async function renderJournal(container) {
+  const MOODS = [
+    { emoji: '😄', label: 'Fantastisk', value: 5 },
+    { emoji: '🙂', label: 'God', value: 4 },
+    { emoji: '😐', label: 'Okay', value: 3 },
+    { emoji: '😕', label: 'Meh', value: 2 },
+    { emoji: '😞', label: 'Dårlig', value: 1 }
+  ];
+
+  const todayKey = new Date().toISOString().split('T')[0];
+  let entries = await get('journalEntries', {});
+
+  function render() {
+    const today = entries[todayKey] || {};
+    const past7 = [];
+    for (let i = 1; i <= 7; i++) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const k = d.toISOString().split('T')[0];
+      if (entries[k]) past7.push({ date: k, ...entries[k] });
+    }
+
+    container.innerHTML = `<div class="widget-body widget-journal-body">
+      <div class="jnl-mood-row">
+        ${MOODS.map(m => `<button class="jnl-mood-btn${today.mood === m.value ? ' jnl-mood-active' : ''}" data-mood="${m.value}" title="${m.label}">${m.emoji}</button>`).join('')}
+      </div>
+      <textarea class="jnl-text" placeholder="Hvordan går det i dag?" maxlength="300">${escapeHTML(today.text || '')}</textarea>
+      <div class="jnl-footer">
+        <span class="jnl-charcount">${(today.text || '').length}/300</span>
+        <button class="jnl-save-btn">Gem</button>
+      </div>
+      ${past7.length > 0 ? `<div class="jnl-history">
+        ${past7.map(e => {
+          const mood = MOODS.find(m => m.value === e.mood);
+          const dayLabel = new Date(e.date).toLocaleDateString('da-DK', { weekday: 'short', day: 'numeric', month: 'short' });
+          return `<div class="jnl-history-item">
+            <span class="jnl-history-mood">${mood ? mood.emoji : '·'}</span>
+            <span class="jnl-history-date">${dayLabel}</span>
+            <span class="jnl-history-text">${escapeHTML((e.text || '').slice(0, 40))}${(e.text || '').length > 40 ? '…' : ''}</span>
+          </div>`;
+        }).join('')}
+      </div>` : ''}
+    </div>`;
+
+    // Mood buttons
+    container.querySelectorAll('.jnl-mood-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const mood = parseInt(btn.dataset.mood, 10);
+        if (!entries[todayKey]) entries[todayKey] = {};
+        entries[todayKey].mood = mood;
+        await set('journalEntries', entries);
+        render();
+      });
+    });
+
+    // Text + save
+    const textarea = container.querySelector('.jnl-text');
+    const charcount = container.querySelector('.jnl-charcount');
+    const saveBtn = container.querySelector('.jnl-save-btn');
+
+    textarea.addEventListener('input', () => {
+      charcount.textContent = `${textarea.value.length}/300`;
+    });
+
+    saveBtn.addEventListener('click', async () => {
+      if (!entries[todayKey]) entries[todayKey] = {};
+      entries[todayKey].text = textarea.value.slice(0, 300);
+      await set('journalEntries', entries);
+      saveBtn.textContent = 'Gemt!';
+      setTimeout(() => { saveBtn.textContent = 'Gem'; }, 1200);
+    });
+  }
+
+  render();
+}
+
+// ============================================================
+//  MINI CALENDAR — month grid with current day highlighted
+// ============================================================
+
+function renderMiniCal(container) {
+  let viewDate = new Date();
+
+  const DA_MONTHS = ['Januar', 'Februar', 'Marts', 'April', 'Maj', 'Juni',
+    'Juli', 'August', 'September', 'Oktober', 'November', 'December'];
+  const DA_DAYS = ['Ma', 'Ti', 'On', 'To', 'Fr', 'Lø', 'Sø'];
+
+  function render() {
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
+    const today = new Date();
+    const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+    const todayDate = today.getDate();
+
+    // First day of month (0=Sun), adjust for Monday start
+    const firstDay = new Date(year, month, 1).getDay();
+    const startOffset = (firstDay === 0 ? 6 : firstDay - 1);
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrev = new Date(year, month, 0).getDate();
+
+    // Build grid cells
+    const cells = [];
+    // Previous month trailing days
+    for (let i = startOffset - 1; i >= 0; i--) {
+      cells.push({ day: daysInPrev - i, cls: 'cal-other' });
+    }
+    // Current month days
+    for (let d = 1; d <= daysInMonth; d++) {
+      const isToday = isCurrentMonth && d === todayDate;
+      const dayOfWeek = new Date(year, month, d).getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      cells.push({ day: d, cls: isToday ? 'cal-today' : isWeekend ? 'cal-weekend' : '' });
+    }
+    // Next month leading days
+    const remaining = 42 - cells.length;
+    for (let d = 1; d <= remaining; d++) {
+      cells.push({ day: d, cls: 'cal-other' });
+    }
+    // Trim to 35 if last row is all next-month
+    const rows = cells.length > 35 && cells.slice(35).every(c => c.cls === 'cal-other') ? cells.slice(0, 35) : cells;
+
+    container.innerHTML = `<div class="widget-body widget-minical-body">
+      <div class="cal-nav">
+        <button class="cal-prev" title="Forrige måned">&lsaquo;</button>
+        <span class="cal-title">${DA_MONTHS[month]} ${year}</span>
+        <button class="cal-next" title="Næste måned">&rsaquo;</button>
+      </div>
+      <div class="cal-grid">
+        ${DA_DAYS.map(d => `<span class="cal-hdr">${d}</span>`).join('')}
+        ${rows.map(c => `<span class="cal-day ${c.cls}">${c.day}</span>`).join('')}
+      </div>
+      ${!isCurrentMonth ? '<button class="cal-today-btn">I dag</button>' : ''}
+    </div>`;
+
+    container.querySelector('.cal-prev').addEventListener('click', () => {
+      viewDate = new Date(year, month - 1, 1);
+      render();
+    });
+    container.querySelector('.cal-next').addEventListener('click', () => {
+      viewDate = new Date(year, month + 1, 1);
+      render();
+    });
+    const todayBtn = container.querySelector('.cal-today-btn');
+    if (todayBtn) {
+      todayBtn.addEventListener('click', () => {
+        viewDate = new Date();
+        render();
+      });
+    }
+  }
+
+  render();
+}
+
+// ============================================================
+//  GOALS — set targets & track progress visually
+// ============================================================
+
+async function renderGoals(container) {
+  let goals = await get('goalsData', []);
+
+  function render() {
+    container.innerHTML = `<div class="widget-body widget-goals-body">
+      ${goals.length === 0 ? '<div class="goals-empty">Ingen mål endnu — tilføj et!</div>' : ''}
+      <div class="goals-list">
+        ${goals.map((g, i) => {
+          const pct = g.target > 0 ? Math.min(100, Math.round((g.current / g.target) * 100)) : 0;
+          const done = pct >= 100;
+          return `<div class="goal-item${done ? ' goal-done' : ''}" data-idx="${i}">
+            <div class="goal-header">
+              <span class="goal-name">${escapeHTML(g.name)}</span>
+              <span class="goal-pct">${pct}%</span>
+              <button class="goal-delete" data-idx="${i}" title="Slet">${ICONS.close}</button>
+            </div>
+            <div class="goal-bar-wrap">
+              <div class="goal-bar" style="width:${pct}%"></div>
+            </div>
+            <div class="goal-controls">
+              <button class="goal-dec" data-idx="${i}">−</button>
+              <span class="goal-progress">${g.current} / ${g.target}</span>
+              <button class="goal-inc" data-idx="${i}">+</button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="goals-add-row">
+        <input type="text" class="goals-name-input" placeholder="Mål..." maxlength="30" />
+        <input type="number" class="goals-target-input" placeholder="Mål-tal" min="1" max="99999" />
+        <button class="goals-add-btn">${ICONS.plus}</button>
+      </div>
+    </div>`;
+
+    // Add goal
+    const nameInput = container.querySelector('.goals-name-input');
+    const targetInput = container.querySelector('.goals-target-input');
+    const addBtn = container.querySelector('.goals-add-btn');
+
+    async function addGoal() {
+      const name = nameInput.value.trim();
+      const target = parseInt(targetInput.value, 10);
+      if (!name || !target || target < 1) return;
+      goals.push({ name, target, current: 0 });
+      await set('goalsData', goals);
+      render();
+    }
+
+    addBtn.addEventListener('click', addGoal);
+    targetInput.addEventListener('keydown', e => { if (e.key === 'Enter') addGoal(); });
+    nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') targetInput.focus(); });
+
+    // Increment / Decrement
+    container.querySelectorAll('.goal-inc').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const idx = parseInt(btn.dataset.idx, 10);
+        if (goals[idx]) {
+          goals[idx].current = Math.min(goals[idx].current + 1, goals[idx].target);
+          await set('goalsData', goals);
+          render();
+        }
+      });
+    });
+
+    container.querySelectorAll('.goal-dec').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const idx = parseInt(btn.dataset.idx, 10);
+        if (goals[idx]) {
+          goals[idx].current = Math.max(goals[idx].current - 1, 0);
+          await set('goalsData', goals);
+          render();
+        }
+      });
+    });
+
+    // Delete
+    container.querySelectorAll('.goal-delete').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const idx = parseInt(btn.dataset.idx, 10);
+        goals.splice(idx, 1);
+        await set('goalsData', goals);
+        render();
+      });
+    });
+  }
+
+  render();
 }
 
 // ============================================================

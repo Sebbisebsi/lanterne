@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Lanterne",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Dit varme, personlige udgangspunkt. En ny fane der f\u00f8les som hjem.",
   "chrome_url_overrides": {
     "newtab": "newtab.html"
@@ -18,11 +18,11 @@
   "background": {
     "service_worker": "js/background.js"
   },
-  "permissions": ["storage", "activeTab", "tabs", "cookies"],
+  "permissions": ["storage", "cookies", "search"],
   "host_permissions": ["https://api.open-meteo.com/*", "https://www.lectio.dk/*"],
   "web_accessible_resources": [{
     "resources": ["sounds/*"],
-    "matches": ["<all_urls>"]
+    "matches": ["chrome-extension://*/*"]
   }],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com"

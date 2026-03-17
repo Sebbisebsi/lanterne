@@ -1,6 +1,6 @@
 import { get } from './storage.js';
 
-const DA_DAYS = ['sondag', 'mandag', 'tirsdag', 'onsdag', 'torsdag', 'fredag', 'lordag'];
+const DA_DAYS = ['søndag', 'mandag', 'tirsdag', 'onsdag', 'torsdag', 'fredag', 'lørdag'];
 const DA_MONTHS = ['januar', 'februar', 'marts', 'april', 'maj', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'december'];
 
 function getGreeting(hour) {
@@ -10,7 +10,12 @@ function getGreeting(hour) {
   return 'God nat';
 }
 
+let clockInterval = null;
+
 export async function initClock(clockEl, greetingEl, dateEl) {
+  // Clear previous interval so re-init doesn't stack timers
+  if (clockInterval) clearInterval(clockInterval);
+
   const stored = await get('settings', {});
   const settings = { clockFormat: '24h', greeting: true, userName: '', ...stored };
 
@@ -44,12 +49,15 @@ export async function initClock(clockEl, greetingEl, dateEl) {
 
     // Greeting
     if (settings.greeting) {
+      greetingEl.style.display = '';
       let greet = getGreeting(hour);
       if (settings.userName) greet += `, ${settings.userName}`;
       if (greet !== lastGreeting) {
         greetingEl.textContent = greet;
         lastGreeting = greet;
       }
+    } else {
+      greetingEl.style.display = 'none';
     }
 
     // Date
@@ -63,5 +71,5 @@ export async function initClock(clockEl, greetingEl, dateEl) {
   }
 
   update();
-  setInterval(update, 1000);
+  clockInterval = setInterval(update, 1000);
 }
