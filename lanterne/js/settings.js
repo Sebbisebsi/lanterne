@@ -285,14 +285,13 @@ export async function initSettings(triggerBtn, panel) {
           <h4>Sektioner</h4>
 
           <div class="settings-row">
-            <label>Statistik</label>
-            <div class="settings-toggle-group">
-              <button class="settings-toggle-btn ${settings.statsPosition === 'above' ? 'active' : ''}" data-stats-val="above">Over s&oslash;gning</button>
-              <button class="settings-toggle-btn ${(!settings.statsPosition || settings.statsPosition === 'below' || settings.statsPosition === 'content') ? 'active' : ''}" data-stats-val="below">Under s&oslash;gning</button>
-              <button class="settings-toggle-btn ${settings.statsPosition === 'topbar' ? 'active' : ''}" data-stats-val="topbar">Topbar</button>
-            </div>
+            <label>Statistik placering</label>
+            <select class="settings-select" id="stats-position-select">
+              <option value="above" ${settings.statsPosition === 'above' ? 'selected' : ''}>Over s&oslash;gning</option>
+              <option value="below" ${(!settings.statsPosition || settings.statsPosition === 'below' || settings.statsPosition === 'content') ? 'selected' : ''}>Under s&oslash;gning</option>
+              <option value="topbar" ${settings.statsPosition === 'topbar' ? 'selected' : ''}>Topbar</option>
+            </select>
           </div>
-          <p class="settings-hint">Placer statistik over/under s&oslash;gefeltet eller i topbaren</p>
 
           <div class="settings-row">
             <label>Daglig tjekliste</label>
@@ -516,11 +515,12 @@ export async function initSettings(triggerBtn, panel) {
     }
 
     // Stats position
-    panel.querySelectorAll('[data-stats-val]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        updateSetting('statsPosition', btn.dataset.statsVal).then(() => location.reload());
+    const statsSelect = panel.querySelector('#stats-position-select');
+    if (statsSelect) {
+      statsSelect.addEventListener('change', () => {
+        updateSetting('statsPosition', statsSelect.value).then(() => location.reload());
       });
-    });
+    }
 
     // Search engine
     panel.querySelectorAll('[data-search-val]').forEach(btn => {

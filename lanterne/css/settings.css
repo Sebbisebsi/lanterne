@@ -199,6 +199,35 @@
   stroke: #fff;
 }
 
+/* Select dropdown */
+.settings-select {
+  background: rgba(0, 0, 0, 0.15);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.6rem;
+  font-size: 0.82rem;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.settings-select:hover,
+.settings-select:focus {
+  border-color: var(--accent);
+}
+.settings-select option {
+  background: #1a1a1a;
+  color: #eee;
+}
+[data-theme="light"] .settings-select {
+  background: rgba(0, 0, 0, 0.04);
+}
+[data-theme="light"] .settings-select option {
+  background: #fff;
+  color: #222;
+}
+
 /* Checkbox as toggle switch */
 .settings-checkbox {
   position: relative;
