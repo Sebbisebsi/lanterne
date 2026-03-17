@@ -1,4 +1,4 @@
-import { get, set } from './storage.js';
+import { get, set, getSyncEnabled, setSyncEnabled } from './storage.js';
 
 export const DEFAULT_SETTINGS = {
   theme: 'dark',
@@ -12,19 +12,36 @@ export const DEFAULT_SETTINGS = {
   backgroundFit: 'cover',
   layoutPosition: 'top',
   weatherUnit: 'celsius',
-  searchEngine: 'google',
   statsPosition: 'below',
   focusMode: false,
   effectType: 'embers',
   effectAmount: 'medium',
   showChecklist: true,
+  // Accent & display
+  accentColor: '#e09030',
+  fontSize: 100,
+  autoHideBar: false,
+  showSearch: true,
+  showQuicklinks: true,
   // Star-specific settings
   starsShootFreq: 'normal',
   starsDeepSky: true,
   starsTwinkle: 'normal'
 };
 
-export async function initSettings(triggerBtn, panel) {
+// Accent color presets
+const ACCENT_PRESETS = [
+  { name: 'Ember', value: '#e09030' },
+  { name: 'Rose', value: '#d4607a' },
+  { name: 'Lavendel', value: '#9070d0' },
+  { name: 'Hav', value: '#3090c0' },
+  { name: 'Smaragd', value: '#40a070' },
+  { name: 'Guld', value: '#c8a840' },
+  { name: 'Koral', value: '#e06050' },
+  { name: 'Himmel', value: '#60a0d8' },
+];
+
+export async function initSettings(triggerBtn, panel, liveCallbacks = {}) {
   // Merge stored settings with defaults so new keys always get their default value
   const stored = await get('settings', {});
   let settings = { ...DEFAULT_SETTINGS, ...stored };
@@ -32,12 +49,31 @@ export async function initSettings(triggerBtn, panel) {
   if (Object.keys(stored).length > 0 && Object.keys(stored).length < Object.keys(DEFAULT_SETTINGS).length) {
     await set('settings', settings);
   }
+  // Track sync state separately (not part of the settings object)
+  settings._syncEnabled = await getSyncEnabled();
   let isOpen = false;
+
+  function closePanel() {
+    isOpen = false;
+    panel.classList.remove('open');
+  }
 
   triggerBtn.addEventListener('click', () => {
     isOpen = !isOpen;
     panel.classList.toggle('open', isOpen);
     if (isOpen) render();
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen) closePanel();
+  });
+
+  // Close on click outside
+  document.addEventListener('mousedown', (e) => {
+    if (isOpen && !panel.contains(e.target) && e.target !== triggerBtn && !triggerBtn.contains(e.target)) {
+      closePanel();
+    }
   });
 
   async function updateSetting(key, value) {
@@ -65,7 +101,37 @@ export async function initSettings(triggerBtn, panel) {
       case 'layoutPosition':
         applyLayoutPosition();
         break;
+      case 'accentColor':
+        applyAccent(value);
+        break;
+      case 'fontSize':
+        applyFontSize(value);
+        break;
+      case 'autoHideBar':
+        document.body.classList.toggle('auto-hide-bar', !!value);
+        break;
+      case 'showSearch':
+        { const el = document.getElementById('search-section'); if (el) el.style.display = value ? '' : 'none'; }
+        break;
+      case 'showQuicklinks':
+        { const el = document.getElementById('quicklinks-section'); if (el) el.style.display = value ? '' : 'none'; }
+        break;
     }
+  }
+
+  function applyAccent(hex) {
+    const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+    const root = document.documentElement;
+    root.style.setProperty('--accent', hex);
+    root.style.setProperty('--accent-warm', hex);
+    root.style.setProperty('--accent-soft', `rgba(${r}, ${g}, ${b}, 0.12)`);
+    root.style.setProperty('--accent-glow', `rgba(${r}, ${g}, ${b}, 0.06)`);
+    root.style.setProperty('--glow', `0 0 80px rgba(${r}, ${g}, ${b}, 0.08)`);
+    root.style.setProperty('--glow-strong', `0 0 120px rgba(${r}, ${g}, ${b}, 0.15)`);
+  }
+
+  function applyFontSize(pct) {
+    document.documentElement.style.fontSize = (pct / 100 * 15) + 'px';
   }
 
   async function applyBackground() {
@@ -143,6 +209,25 @@ export async function initSettings(triggerBtn, panel) {
               </button>
             </div>
             ${settings.theme === 'auto' ? '<p class="settings-hint">Skifter automatisk mellem lyst og m&oslash;rkt tema efter klokkeslaet, med dynamisk sol og m&aring;ne</p>' : ''}
+          </div>
+
+          <div class="settings-row settings-row-stack">
+            <label>Accentfarve</label>
+            <div class="settings-accent-row">
+              ${ACCENT_PRESETS.map(p => `<button class="settings-accent-dot ${(settings.accentColor || '#e09030') === p.value ? 'active' : ''}" data-accent="${p.value}" style="background:${p.value}" title="${p.name}"></button>`).join('')}
+              <label class="settings-accent-custom" title="Vælg egen farve">
+                <input type="color" class="settings-accent-input" value="${settings.accentColor || '#e09030'}" />
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+              </label>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <label>Skriftst&oslash;rrelse</label>
+            <div class="settings-range-wrap">
+              <input type="range" class="settings-range" data-range="fontSize" min="80" max="130" step="5" value="${settings.fontSize ?? 100}" />
+              <span class="settings-range-val" data-val="fontSize">${settings.fontSize ?? 100}%</span>
+            </div>
           </div>
 
           <div class="settings-row">
@@ -224,24 +309,6 @@ export async function initSettings(triggerBtn, panel) {
         </div>
 
         <div class="settings-section">
-          <h4>S&oslash;gning</h4>
-
-          <div class="settings-row settings-row-stack">
-            <label>S&oslash;gemaskine</label>
-            <div class="settings-toggle-group">
-              <button class="settings-toggle-btn ${(settings.searchEngine || 'google') === 'google' ? 'active' : ''}" data-search-val="google">Google</button>
-              <button class="settings-toggle-btn ${settings.searchEngine === 'duckduckgo' ? 'active' : ''}" data-search-val="duckduckgo">DuckDuckGo</button>
-              <button class="settings-toggle-btn ${settings.searchEngine === 'brave' ? 'active' : ''}" data-search-val="brave">Brave</button>
-            </div>
-            <div class="settings-toggle-group" style="margin-top:0.3rem;">
-              <button class="settings-toggle-btn ${settings.searchEngine === 'startpage' ? 'active' : ''}" data-search-val="startpage">Startpage</button>
-              <button class="settings-toggle-btn ${settings.searchEngine === 'youtube' ? 'active' : ''}" data-search-val="youtube">YouTube</button>
-              <button class="settings-toggle-btn ${settings.searchEngine === 'wikipedia' ? 'active' : ''}" data-search-val="wikipedia">Wikipedia</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="settings-section">
           <h4>Personligt</h4>
 
           <div class="settings-row">
@@ -300,6 +367,28 @@ export async function initSettings(triggerBtn, panel) {
             </button>
           </div>
           <p class="settings-hint">Vis/skjul den daglige tjekliste</p>
+
+          <div class="settings-row">
+            <label>S&oslash;gebar</label>
+            <button class="settings-checkbox ${settings.showSearch !== false ? 'checked' : ''}" data-setting="showSearch">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
+          </div>
+
+          <div class="settings-row">
+            <label>Genveje</label>
+            <button class="settings-checkbox ${settings.showQuicklinks !== false ? 'checked' : ''}" data-setting="showQuicklinks">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
+          </div>
+
+          <div class="settings-row">
+            <label>Autoskjul topbar</label>
+            <button class="settings-checkbox ${settings.autoHideBar ? 'checked' : ''}" data-setting="autoHideBar">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
+          </div>
+          <p class="settings-hint">Topbar skjules automatisk og vises n&aring;r musen n&aelig;rmer sig</p>
         </div>
 
         <div class="settings-section">
@@ -357,21 +446,36 @@ export async function initSettings(triggerBtn, panel) {
           ` : ''}
         </div>
 
+        <div class="settings-section">
+          <h4>Synkronisering</h4>
+
+          <div class="settings-row">
+            <label>Synkroniser p&aring; tv&aelig;rs af enheder</label>
+            <button class="settings-checkbox ${settings._syncEnabled ? 'checked' : ''}" data-setting="syncEnabled">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
+          </div>
+          <p class="settings-hint">Synkroniserer dine indstillinger, genveje, tjekliste, scrapbook og widgets via din Google-konto.</p>
+          <p class="settings-hint" style="opacity:0.6"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 3px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Baggrundsbilleder synkroniseres <strong>ikke</strong> (for store til Chrome Sync).</p>
+        </div>
+
         <div class="settings-footer">
-          <span class="settings-version">Lanterne v0.7.0</span>
+          <span class="settings-version">Lanterne v0.7.1</span>
         </div>
       </div>
     `;
 
     // Event listeners
-    panel.querySelector('.settings-close').addEventListener('click', () => {
-      isOpen = false;
-      panel.classList.remove('open');
-    });
+    panel.querySelector('.settings-close').addEventListener('click', closePanel);
 
-    // Theme toggles
+    // Theme toggles — live switch without reload
     panel.querySelectorAll('[data-theme-val]').forEach(btn => {
-      btn.addEventListener('click', () => updateSetting('theme', btn.dataset.themeVal).then(() => location.reload()));
+      btn.addEventListener('click', () => {
+        updateSetting('theme', btn.dataset.themeVal).then(() => {
+          if (liveCallbacks.onThemeChange) liveCallbacks.onThemeChange(settings.theme);
+          render();
+        });
+      });
     });
 
     // Background toggles
@@ -427,37 +531,48 @@ export async function initSettings(triggerBtn, panel) {
       });
     }
 
-    // Clock format
+    // Clock format — live
     panel.querySelectorAll('[data-clock-val]').forEach(btn => {
       btn.addEventListener('click', () => {
         updateSetting('clockFormat', btn.dataset.clockVal).then(() => {
-          location.reload();
+          if (liveCallbacks.onClockChange) liveCallbacks.onClockChange(settings);
+          render();
         });
       });
     });
 
-    // Weather unit
+    // Weather unit — live
     panel.querySelectorAll('[data-weather-val]').forEach(btn => {
       btn.addEventListener('click', () => {
         updateSetting('weatherUnit', btn.dataset.weatherVal).then(() => {
-          location.reload();
+          if (liveCallbacks.onWeatherChange) liveCallbacks.onWeatherChange(settings);
+          render();
         });
       });
     });
 
-    // Greeting toggle
+    // Greeting toggle — live
     const greetingBtn = panel.querySelector('[data-setting="greeting"]');
     if (greetingBtn) {
       greetingBtn.addEventListener('click', () => {
-        updateSetting('greeting', !settings.greeting).then(() => location.reload());
+        updateSetting('greeting', !settings.greeting).then(() => {
+          const greetEl = document.getElementById('greeting');
+          if (greetEl) greetEl.style.display = settings.greeting ? '' : 'none';
+          render();
+        });
       });
     }
 
-    // Focus mode toggle
+    // Focus mode toggle — live
     const focusModeBtn = panel.querySelector('[data-setting="focusMode"]');
     if (focusModeBtn) {
       focusModeBtn.addEventListener('click', () => {
-        updateSetting('focusMode', !settings.focusMode).then(() => location.reload());
+        updateSetting('focusMode', !settings.focusMode).then(() => {
+          document.body.classList.toggle('focus-mode', settings.focusMode);
+          const focusToggle = document.getElementById('focus-toggle');
+          if (focusToggle) focusToggle.classList.toggle('active', settings.focusMode);
+          render();
+        });
       });
     }
 
@@ -468,66 +583,81 @@ export async function initSettings(triggerBtn, panel) {
       });
     });
 
-    // Checklist toggle
+    // Checklist toggle — live
     const checklistBtn = panel.querySelector('[data-setting="showChecklist"]');
     if (checklistBtn) {
       checklistBtn.addEventListener('click', () => {
         const newVal = settings.showChecklist === false ? true : false;
-        updateSetting('showChecklist', newVal).then(() => location.reload());
+        updateSetting('showChecklist', newVal).then(() => {
+          const el = document.getElementById('checklist-section');
+          if (el) el.style.display = newVal ? '' : 'none';
+          render();
+        });
       });
     }
 
-    // Effect type
+    // Effect type — live reinit
     panel.querySelectorAll('[data-effect-val]').forEach(btn => {
       btn.addEventListener('click', () => {
-        updateSetting('effectType', btn.dataset.effectVal).then(() => location.reload());
+        updateSetting('effectType', btn.dataset.effectVal).then(() => {
+          if (liveCallbacks.onEffectChange) liveCallbacks.onEffectChange(settings);
+          render();
+        });
       });
     });
 
-    // Effect amount
+    // Effect amount — live reinit
     panel.querySelectorAll('[data-amount-val]').forEach(btn => {
       btn.addEventListener('click', () => {
-        updateSetting('effectAmount', btn.dataset.amountVal).then(() => location.reload());
+        updateSetting('effectAmount', btn.dataset.amountVal).then(() => {
+          if (liveCallbacks.onEffectChange) liveCallbacks.onEffectChange(settings);
+          render();
+        });
       });
     });
 
-    // Star-specific: shooting star frequency
+    // Star-specific: shooting star frequency — live reinit
     panel.querySelectorAll('[data-shoot-val]').forEach(btn => {
       btn.addEventListener('click', () => {
-        updateSetting('starsShootFreq', btn.dataset.shootVal).then(() => location.reload());
+        updateSetting('starsShootFreq', btn.dataset.shootVal).then(() => {
+          if (liveCallbacks.onEffectChange) liveCallbacks.onEffectChange(settings);
+          render();
+        });
       });
     });
 
-    // Star-specific: twinkle intensity
+    // Star-specific: twinkle intensity — live reinit
     panel.querySelectorAll('[data-twinkle-val]').forEach(btn => {
       btn.addEventListener('click', () => {
-        updateSetting('starsTwinkle', btn.dataset.twinkleVal).then(() => location.reload());
+        updateSetting('starsTwinkle', btn.dataset.twinkleVal).then(() => {
+          if (liveCallbacks.onEffectChange) liveCallbacks.onEffectChange(settings);
+          render();
+        });
       });
     });
 
-    // Star-specific: deep sky toggle
+    // Star-specific: deep sky toggle — live reinit
     const deepSkyBtn = panel.querySelector('[data-setting="starsDeepSky"]');
     if (deepSkyBtn) {
       deepSkyBtn.addEventListener('click', () => {
         const newVal = settings.starsDeepSky === false ? true : false;
-        updateSetting('starsDeepSky', newVal).then(() => location.reload());
+        updateSetting('starsDeepSky', newVal).then(() => {
+          if (liveCallbacks.onEffectChange) liveCallbacks.onEffectChange(settings);
+          render();
+        });
       });
     }
 
-    // Stats position
+    // Stats position — live
     const statsSelect = panel.querySelector('#stats-position-select');
     if (statsSelect) {
       statsSelect.addEventListener('change', () => {
-        updateSetting('statsPosition', statsSelect.value).then(() => location.reload());
+        updateSetting('statsPosition', statsSelect.value).then(() => {
+          if (liveCallbacks.onStatsChange) liveCallbacks.onStatsChange(settings);
+          render();
+        });
       });
     }
-
-    // Search engine
-    panel.querySelectorAll('[data-search-val]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        updateSetting('searchEngine', btn.dataset.searchVal).then(() => location.reload());
-      });
-    });
 
     // Name input (debounced while typing, immediate on blur for tab-close safety)
     const nameInput = panel.querySelector('.settings-text-input');
@@ -544,9 +674,76 @@ export async function initSettings(triggerBtn, panel) {
         updateSetting('userName', e.target.value.trim());
       });
     }
+
+    // Accent color presets
+    panel.querySelectorAll('[data-accent]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        updateSetting('accentColor', btn.dataset.accent).then(render);
+      });
+    });
+
+    // Accent custom color picker
+    const accentInput = panel.querySelector('.settings-accent-input');
+    if (accentInput) {
+      accentInput.addEventListener('input', (e) => {
+        updateSetting('accentColor', e.target.value);
+      });
+      accentInput.addEventListener('change', render);
+    }
+
+    // Font size slider
+    const fontRange = panel.querySelector('[data-range="fontSize"]');
+    if (fontRange) {
+      const fontVal = panel.querySelector('[data-val="fontSize"]');
+      fontRange.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10);
+        if (fontVal) fontVal.textContent = val + '%';
+        updateSetting('fontSize', val);
+      });
+    }
+
+    // Search toggle
+    const searchBtn = panel.querySelector('[data-setting="showSearch"]');
+    if (searchBtn) {
+      searchBtn.addEventListener('click', () => {
+        updateSetting('showSearch', settings.showSearch === false ? true : false).then(render);
+      });
+    }
+
+    // Quicklinks toggle
+    const qlBtn = panel.querySelector('[data-setting="showQuicklinks"]');
+    if (qlBtn) {
+      qlBtn.addEventListener('click', () => {
+        updateSetting('showQuicklinks', settings.showQuicklinks === false ? true : false).then(render);
+      });
+    }
+
+    // Auto-hide bar toggle
+    const barBtn = panel.querySelector('[data-setting="autoHideBar"]');
+    if (barBtn) {
+      barBtn.addEventListener('click', () => {
+        updateSetting('autoHideBar', !settings.autoHideBar).then(render);
+      });
+    }
+
+    // Sync toggle
+    const syncBtn = panel.querySelector('[data-setting="syncEnabled"]');
+    if (syncBtn) {
+      syncBtn.addEventListener('click', async () => {
+        const newVal = !settings._syncEnabled;
+        await setSyncEnabled(newVal);
+        settings._syncEnabled = newVal;
+        render();
+      });
+    }
   }
 
   // Apply initial settings
   applyBackground();
   applyLayoutPosition();
+  if (settings.accentColor && settings.accentColor !== '#e09030') applyAccent(settings.accentColor);
+  if (settings.fontSize && settings.fontSize !== 100) applyFontSize(settings.fontSize);
+  if (settings.autoHideBar) document.body.classList.add('auto-hide-bar');
+  if (settings.showSearch === false) { const el = document.getElementById('search-section'); if (el) el.style.display = 'none'; }
+  if (settings.showQuicklinks === false) { const el = document.getElementById('quicklinks-section'); if (el) el.style.display = 'none'; }
 }
