@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="css/search.css">
   <link rel="stylesheet" href="css/widgets.css">
   <link rel="stylesheet" href="css/sounds.css">
+  <link rel="stylesheet" href="css/welcome.css">
 </head>
 
 <body>
@@ -33,26 +34,26 @@
       <div class="weather" id="weather"></div>
     </section>
 
-    <!-- Stats -->
-    <section class="stats-section fade-in fade-in-2 focusable-hide" id="stats-section">
-    </section>
-
     <!-- Search -->
     <section class="search-section fade-in fade-in-2 focusable-hide" id="search-section">
     </section>
 
-    <!-- Quick Links -->
-    <section class="quicklinks-section fade-in fade-in-3 focusable-hide" id="quicklinks-section">
+    <!-- Quick Links (right below search for fast access) -->
+    <section class="quicklinks-section fade-in fade-in-2 focusable-hide" id="quicklinks-section">
+    </section>
+
+    <!-- Stats -->
+    <section class="stats-section fade-in fade-in-3 focusable-hide" id="stats-section">
     </section>
 
     <!-- Checklist -->
     <section class="checklist-section fade-in fade-in-4 focusable-hide" id="checklist-section">
     </section>
 
-    <!-- Widgets -->
-    <section class="widgets-section fade-in fade-in-5 focusable-hide" id="widgets-section">
-    </section>
   </main>
+  
+  <section class="widgets-section fade-in fade-in-5 focusable-hide" id="widgets-section">
+  </section>
 
   <!-- Top bar with action buttons -->
   <div class="top-bar fade-in fade-in-6">
@@ -79,6 +80,7 @@
         </svg>
       </button>
     </div>
+    <div class="top-bar-center" id="stats-topbar"></div>
     <div class="top-bar-right">
       <button class="top-bar-btn" id="sound-trigger" title="Ambient lyde">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"

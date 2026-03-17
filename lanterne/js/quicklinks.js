@@ -1,4 +1,4 @@
-import { get, set } from './storage.js';
+import { get, set, escapeHTML, sanitizeURL } from './storage.js';
 
 const DEFAULT_LINKS = [
   { id: 'ql_1', name: 'Google', url: 'https://www.google.com' },
@@ -34,19 +34,19 @@ export async function initQuickLinks(container) {
 
       const el = document.createElement('a');
       el.className = 'quicklink';
-      el.href = link.url;
+      el.href = sanitizeURL(link.url) || '#';
       el.title = link.url;
 
       const favicon = getFaviconUrl(link.url);
       el.innerHTML = `
         ${favicon ? `<img class="quicklink-favicon" src="${favicon}" alt="" width="16" height="16" />` : ''}
-        <span class="quicklink-name">${link.name}</span>
+        <span class="quicklink-name">${escapeHTML(link.name)}</span>
       `;
 
       // Delete button (visible on hover)
       const deleteBtn = document.createElement('button');
       deleteBtn.className = 'quicklink-delete';
-      deleteBtn.title = `Fjern ${link.name}`;
+      deleteBtn.title = `Fjern ${escapeHTML(link.name)}`;
       deleteBtn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
       deleteBtn.addEventListener('click', async (e) => {
         e.preventDefault();
@@ -64,7 +64,7 @@ export async function initQuickLinks(container) {
     // Add button
     const addBtn = document.createElement('button');
     addBtn.className = 'quicklink-add';
-    addBtn.title = 'Tilfoej link';
+    addBtn.title = 'Tilføj link';
     addBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
     addBtn.addEventListener('click', () => showAddModal());
     row.appendChild(addBtn);
@@ -79,7 +79,7 @@ export async function initQuickLinks(container) {
     const modal = document.createElement('div');
     modal.className = 'quicklink-modal';
     modal.innerHTML = `
-      <h3>Tilfoej link</h3>
+      <h3>Tilføj link</h3>
       <input type="text" class="quicklink-input" id="ql-name" placeholder="Navn (f.eks. Reddit)" maxlength="20" />
       <input type="url" class="quicklink-input" id="ql-url" placeholder="URL (f.eks. https://reddit.com)" />
       <div class="quicklink-modal-actions">
@@ -108,6 +108,7 @@ export async function initQuickLinks(container) {
       if (!url.startsWith('http://') && !url.startsWith('https://')) {
         url = 'https://' + url;
       }
+      if (!sanitizeURL(url)) return;
 
       links.push({
         id: 'ql_' + Date.now(),

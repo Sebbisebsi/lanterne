@@ -312,3 +312,10 @@
 .checklist-save:hover {
   filter: brightness(1.1);
 }
+
+@media (max-width: 576px) {
+  .checklist-modal {
+    width: 95%;
+    padding: 1.25rem;
+  }
+}

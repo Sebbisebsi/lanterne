@@ -114,3 +114,11 @@
   0%, 100% { box-shadow: 0 0 0 0 transparent; }
   50% { box-shadow: 0 0 12px 2px var(--accent-glow); }
 }
+
+@media (max-width: 576px) {
+  .sound-panel {
+    width: calc(100vw - 1.5rem);
+    right: 0.75rem;
+    max-width: 100%;
+  }
+}

@@ -1,4 +1,4 @@
-import { get, set } from './storage.js';
+import { get, set, escapeHTML, sanitizeURL } from './storage.js';
 
 function timeAgo(dateStr) {
   const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
@@ -112,15 +112,15 @@ export async function initScrapbook(triggerBtn, panel) {
               <div class="scrapbook-item" data-id="${item.id}">
                 <div class="scrapbook-item-top">
                   ${item.url
-                    ? `<a class="scrapbook-item-title" href="${item.url}" target="_blank" rel="noopener">${item.title}</a>`
-                    : `<span class="scrapbook-item-title">${item.title}</span>`
+                    ? `<a class="scrapbook-item-title" href="${sanitizeURL(item.url)}" target="_blank" rel="noopener">${escapeHTML(item.title)}</a>`
+                    : `<span class="scrapbook-item-title">${escapeHTML(item.title)}</span>`
                   }
                   <button class="scrapbook-item-delete" title="Slet" data-id="${item.id}">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                   </button>
                 </div>
-                ${item.url ? `<span class="scrapbook-item-url">${truncateUrl(item.url)}</span>` : ''}
-                <textarea class="scrapbook-item-note" placeholder="Tilf&oslash;j en note..." rows="1" data-id="${item.id}">${item.note || ''}</textarea>
+                ${item.url ? `<span class="scrapbook-item-url">${escapeHTML(truncateUrl(item.url))}</span>` : ''}
+                <textarea class="scrapbook-item-note" placeholder="Tilf&oslash;j en note..." rows="1" data-id="${item.id}">${escapeHTML(item.note || '')}</textarea>
                 <span class="scrapbook-item-time">${timeAgo(item.savedAt)}</span>
               </div>
             `).join('')

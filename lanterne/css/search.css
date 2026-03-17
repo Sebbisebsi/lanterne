@@ -25,8 +25,8 @@
 .search-input {
   width: 100%;
   padding: 0.8rem 3rem 0.8rem 2.8rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  background: rgba(17, 14, 10, 0.6);
+  border: 1px solid rgba(255, 235, 200, 0.08);
   border-radius: 100px;
   color: var(--text-primary);
   font-family: var(--font-body);
@@ -39,7 +39,7 @@
 
 .search-input:focus {
   border-color: var(--accent);
-  background: var(--bg-card-hover);
+  background: rgba(17, 14, 10, 0.7);
   box-shadow: 0 0 0 3px var(--accent-soft), var(--glow);
 }
 

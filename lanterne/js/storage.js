@@ -46,3 +46,21 @@ export async function getAll() {
     chrome.storage.local.get(null, resolve);
   });
 }
+
+export function escapeHTML(str) {
+  const div = document.createElement('div');
+  div.appendChild(document.createTextNode(str));
+  return div.innerHTML;
+}
+
+export function sanitizeURL(url) {
+  if (!url) return '';
+  let target = url.trim();
+  if (!/^https?:\/\//i.test(target)) target = 'https://' + target;
+  try {
+    const u = new URL(target);
+    return u.href;
+  } catch {
+    return '';
+  }
+}

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="da">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lanterne Scrapbook</title>
+  <link rel="stylesheet" href="css/popup.css">
+</head>
+
+<body>
+  <div class="popup-header">
+    <div class="popup-title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+      </svg>
+      <span>Scrapbook</span>
+    </div>
+    <button class="popup-newtab-btn" id="open-newtab" title="Åbn ny fane">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+        <polyline points="15 3 21 3 21 9" />
+        <line x1="10" y1="14" x2="21" y2="3" />
+      </svg>
+    </button>
+  </div>
+
+  <div class="popup-add-section">
+    <button class="popup-add-toggle" id="add-toggle">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+      Tilf&oslash;j klip
+    </button>
+    <div class="popup-add-form" id="add-form" style="display:none">
+      <input class="popup-input" type="text" id="add-title" placeholder="Titel..." maxlength="60" />
+      <input class="popup-input" type="url" id="add-url" placeholder="URL (valgfrit)..." />
+      <textarea class="popup-textarea" id="add-note" placeholder="Note (valgfrit)..." rows="2"></textarea>
+      <div class="popup-add-actions">
+        <button class="popup-btn popup-cancel" id="add-cancel">Annuller</button>
+        <button class="popup-btn popup-save" id="add-save">Gem</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="popup-list" id="scrapbook-list"></div>
+
+  <script src="js/popup.js"></script>
+</body>
+
+</html>

@@ -3,8 +3,10 @@ import { get, set } from './storage.js';
 const ENGINES = {
   google: { name: 'Google', url: 'https://www.google.com/search?q=' },
   duckduckgo: { name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=' },
-  bing: { name: 'Bing', url: 'https://www.bing.com/search?q=' },
-  ecosia: { name: 'Ecosia', url: 'https://www.ecosia.org/search?q=' }
+  brave: { name: 'Brave', url: 'https://search.brave.com/search?q=' },
+  startpage: { name: 'Startpage', url: 'https://www.startpage.com/do/search?q=' },
+  youtube: { name: 'YouTube', url: 'https://www.youtube.com/results?search_query=' },
+  wikipedia: { name: 'Wikipedia', url: 'https://da.wikipedia.org/w/index.php?search=' }
 };
 
 export async function initSearch(container) {
@@ -58,12 +60,12 @@ export async function initSearch(container) {
     enginesPanel.style.display = enginesPanel.style.display === 'none' ? 'flex' : 'none';
   });
 
-  // Select engine
+  // Select engine — read fresh settings, update only the engine key
   container.querySelectorAll('.search-engine-option').forEach(btn => {
     btn.addEventListener('click', async () => {
-      const newSettings = await get('settings', {});
-      newSettings.searchEngine = btn.dataset.engine;
-      await set('settings', newSettings);
+      const current = await get('settings', {});
+      current.searchEngine = btn.dataset.engine;
+      await set('settings', current);
       location.reload();
     });
   });

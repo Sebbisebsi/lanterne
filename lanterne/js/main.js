@@ -1,3 +1,5 @@
+// Q29weXJpZ2h0IDIwMjYgLSBTZWJiaXNlYnNp
+// Primary key
 import { get, set } from './storage.js';
 import { initSearch } from './search.js';
 import { initAmbience } from './ambience.js';
@@ -6,31 +8,26 @@ import { initWeather } from './weather.js';
 import { initChecklist } from './checklist.js';
 import { initQuickLinks } from './quicklinks.js';
 import { initScrapbook } from './scrapbook.js';
-import { initSettings } from './settings.js';
+import { initSettings, DEFAULT_SETTINGS } from './settings.js';
 import { initWidgets } from './widgets.js';
 import { initSounds } from './sounds.js';
 import { initStats } from './stats.js';
 import { initDayNight } from './daynight.js';
+import { initWelcome } from './welcome.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const settings = await get('settings', {
-    theme: 'dark',
-    clockFormat: '24h',
-    greeting: true,
-    userName: '',
-    background: 'default',
-    backgroundColor: '#1a1410',
-    weatherUnit: 'celsius',
-    focusMode: false,
-    effectType: 'embers',
-    effectAmount: 'medium',
-    showChecklist: true
-  });
+  // Merge stored settings with defaults so new keys always have values
+  const stored = await get('settings', {});
+  const settings = { ...DEFAULT_SETTINGS, ...stored };
 
   if (settings.theme === 'light') {
     document.documentElement.setAttribute('data-theme', 'light');
   }
   // Auto theme handled by daynight.js
+
+  // Apply layout position early to prevent layout shift
+  const layoutPos = settings.layoutPosition || 'top';
+  document.querySelector('.content')?.setAttribute('data-position', layoutPos);
 
   // Aggressively remove Chrome's injected new tab page elements
   const OUR_IDS = new Set([
@@ -39,7 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     'search-section', 'quicklinks-section', 'checklist-section', 'widgets-section',
     'scrapbook-btn', 'scrapbook-panel', 'settings-trigger',
     'settings-panel', 'sound-trigger', 'focus-toggle',
-    'widget-add-trigger', 'widget-reset-trigger'
+    'widget-add-trigger', 'widget-reset-trigger', 'stats-topbar'
   ]);
 
   const OUR_CLASSES = new Set([
@@ -47,7 +44,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     'content', 'top-bar', 'scrapbook-panel', 'settings-panel',
     'widget-settings-overlay', 'widget-gallery-overlay',
     'quicklink-modal-overlay', 'sound-panel',
-    'checklist-modal-overlay'
+    'checklist-modal-overlay',
+    'welcome-overlay'
   ]);
 
   function hideChromeCrap() {
@@ -84,7 +82,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   initAmbience(document.getElementById('ambience-canvas'), settings);
   initSearch(document.getElementById('search-section'));
   initWeather(document.getElementById('weather'));
-  initStats(document.getElementById('stats-section'));
+
+  // Stats position: 'content' = above search, 'topbar' = in top bar center
+  const statsContainer = settings.statsPosition === 'topbar'
+    ? document.getElementById('stats-topbar')
+    : document.getElementById('stats-section');
+  const hideStats = settings.statsPosition === 'topbar'
+    ? document.getElementById('stats-section')
+    : document.getElementById('stats-topbar');
+  if (hideStats) hideStats.style.display = 'none';
+  initStats(statsContainer);
+
   initQuickLinks(document.getElementById('quicklinks-section'));
 
   // Checklist (can be disabled in settings)
@@ -111,6 +119,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('settings-panel')
   );
 
+  // Welcome screen (first launch only)
+  await initWelcome();
+
   // Focus mode
   const focusToggle = document.getElementById('focus-toggle');
   let focusMode = settings.focusMode || false;
@@ -124,8 +135,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (focusToggle) {
     focusToggle.addEventListener('click', async () => {
       focusMode = !focusMode;
-      settings.focusMode = focusMode;
-      await set('settings', settings);
+      // Read fresh settings to avoid overwriting concurrent changes
+      const fresh = await get('settings', {});
+      fresh.focusMode = focusMode;
+      await set('settings', fresh);
       applyFocusMode();
       focusToggle.classList.toggle('active', focusMode);
     });

@@ -18,8 +18,10 @@ export async function resetPositions(container) {
  * Called after every widget render to attach drag handles.
  * Drag handle is placed inside .widget-card-actions next to settings/remove buttons.
  */
-export async function setupDrag(container) {
-  if (!positions) {
+export async function setupDrag(container, preLoadedPositions = null) {
+  if (preLoadedPositions) {
+    positions = preLoadedPositions;
+  } else if (!positions) {
     positions = await get('widgetPositions', {});
   }
 
@@ -55,13 +57,16 @@ export async function setupDrag(container) {
     let currentX = positions[id]?.x || 0;
     let currentY = positions[id]?.y || 0;
 
-    // Apply saved position (clamped to current viewport)
+    // Apply saved position
     if (positions[id]) {
-      const clamped = clampToViewport(widget, currentX, currentY);
-      currentX = clamped.x;
-      currentY = clamped.y;
-      widget.style.transform = `translate(${currentX}px, ${currentY}px)`;
-      positions[id] = { x: currentX, y: currentY };
+      // If the style is already applied via template, we don't need to re-apply it immediately.
+      // We just need to sync the internal state.
+      if (!widget.style.transform) {
+        const clamped = clampToViewport(widget, currentX, currentY);
+        currentX = clamped.x;
+        currentY = clamped.y;
+        widget.style.transform = `translate(${currentX}px, ${currentY}px)`;
+      }
     }
 
     let startX, startY;

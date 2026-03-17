@@ -47,10 +47,14 @@ function getWeatherInfo(code) {
 }
 
 export async function initWeather(container) {
+  // Read weather unit preference
+  const settings = await get('settings', {});
+  const unit = settings.weatherUnit || 'celsius';
+
   // Check cache first
   const cached = await get('weatherCache', null);
   if (cached && (Date.now() - cached.timestamp < CACHE_DURATION)) {
-    render(container, cached.data);
+    render(container, cached.data, unit);
     return;
   }
 
@@ -83,7 +87,7 @@ export async function initWeather(container) {
 
       // Cache it
       await set('weatherCache', { data: weatherData, timestamp: Date.now() });
-      render(container, weatherData);
+      render(container, weatherData, unit);
     }
   } catch (err) {
     console.log('Weather unavailable:', err.message);
@@ -92,13 +96,18 @@ export async function initWeather(container) {
   }
 }
 
-function render(container, data) {
+function render(container, data, unit = 'celsius') {
   const info = getWeatherInfo(data.code);
-  const settings_temp = data.temp; // Always celsius from API
+  let temp = data.temp; // Celsius from API
+  let symbol = '°C';
+  if (unit === 'fahrenheit') {
+    temp = Math.round(temp * 9 / 5 + 32);
+    symbol = '°F';
+  }
 
   container.innerHTML = `
     ${ICONS[info.icon] || ICONS['cloud']}
-    <span>${settings_temp}°C</span>
+    <span>${temp}${symbol}</span>
     <span class="weather-separator">·</span>
     <span>${info.da}</span>
   `;

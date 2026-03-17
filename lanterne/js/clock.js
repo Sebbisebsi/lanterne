@@ -11,7 +11,8 @@ function getGreeting(hour) {
 }
 
 export async function initClock(clockEl, greetingEl, dateEl) {
-  const settings = await get('settings', { clockFormat: '24h', greeting: true, userName: '' });
+  const stored = await get('settings', {});
+  const settings = { clockFormat: '24h', greeting: true, userName: '', ...stored };
 
   let lastTime = '';
   let lastDate = '';
