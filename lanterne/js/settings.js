@@ -23,6 +23,9 @@ export const DEFAULT_SETTINGS = {
   autoHideBar: false,
   showSearch: true,
   showQuicklinks: true,
+  // Greeting
+  greetingStyle: 'auto',       // 'auto' = time-based, 'custom' = user text
+  customGreeting: '',
   // Star-specific settings
   starsShootFreq: 'normal',
   starsDeepSky: true,
@@ -315,6 +318,22 @@ export async function initSettings(triggerBtn, panel, liveCallbacks = {}) {
             <label>Dit navn</label>
             <input type="text" class="settings-text-input" value="${settings.userName}" placeholder="Til hilsenen..." maxlength="20" />
           </div>
+
+          <div class="settings-row">
+            <label>Hilsen</label>
+            <div class="settings-toggle-group">
+              <button class="settings-toggle-btn ${(settings.greetingStyle || 'auto') === 'auto' ? 'active' : ''}" data-greet-val="auto">Automatisk</button>
+              <button class="settings-toggle-btn ${settings.greetingStyle === 'custom' ? 'active' : ''}" data-greet-val="custom">Egen tekst</button>
+            </div>
+          </div>
+          ${settings.greetingStyle === 'custom' ? `
+          <div class="settings-row">
+            <label>Egen hilsen</label>
+            <input type="text" class="settings-text-input settings-custom-greeting" value="${settings.customGreeting || ''}" placeholder="F.eks. Hej med dig" maxlength="40" />
+          </div>
+          <p class="settings-hint">Brug {navn} for dit navn, f.eks. "Hej {navn}"</p>
+          ` : ''}
+          <p class="settings-hint">Automatisk skifter mellem god morgen, god eftermiddag, god aften og god nat</p>
         </div>
 
         <div class="settings-section">
@@ -701,6 +720,36 @@ export async function initSettings(triggerBtn, panel, liveCallbacks = {}) {
       nameInput.addEventListener('blur', (e) => {
         clearTimeout(debounce);
         updateSetting('userName', e.target.value.trim());
+      });
+    }
+
+    // Greeting style toggle
+    panel.querySelectorAll('[data-greet-val]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        updateSetting('greetingStyle', btn.dataset.greetVal).then(() => {
+          if (liveCallbacks.onClockChange) liveCallbacks.onClockChange(settings);
+          render();
+        });
+      });
+    });
+
+    // Custom greeting input
+    const customGreetInput = panel.querySelector('.settings-custom-greeting');
+    if (customGreetInput) {
+      let debounceGreet;
+      customGreetInput.addEventListener('input', (e) => {
+        clearTimeout(debounceGreet);
+        debounceGreet = setTimeout(() => {
+          updateSetting('customGreeting', e.target.value.trim()).then(() => {
+            if (liveCallbacks.onClockChange) liveCallbacks.onClockChange(settings);
+          });
+        }, 400);
+      });
+      customGreetInput.addEventListener('blur', (e) => {
+        clearTimeout(debounceGreet);
+        updateSetting('customGreeting', e.target.value.trim()).then(() => {
+          if (liveCallbacks.onClockChange) liveCallbacks.onClockChange(settings);
+        });
       });
     }
 

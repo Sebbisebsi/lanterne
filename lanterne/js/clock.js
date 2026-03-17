@@ -50,8 +50,13 @@ export async function initClock(clockEl, greetingEl, dateEl) {
     // Greeting
     if (settings.greeting) {
       greetingEl.style.display = '';
-      let greet = getGreeting(hour);
-      if (settings.userName) greet += `, ${settings.userName}`;
+      let greet;
+      if (settings.greetingStyle === 'custom' && settings.customGreeting) {
+        greet = settings.customGreeting.replace(/\{navn\}/gi, settings.userName || '');
+      } else {
+        greet = getGreeting(hour);
+        if (settings.userName) greet += `, ${settings.userName}`;
+      }
       if (greet !== lastGreeting) {
         greetingEl.textContent = greet;
         lastGreeting = greet;

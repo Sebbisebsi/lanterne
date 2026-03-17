@@ -199,10 +199,60 @@
   background: var(--accent);
   color: #fff;
   box-shadow: 0 2px 8px rgba(224, 144, 48, 0.25);
+  transform: scale(1);
 }
 
 .settings-toggle-btn.active svg {
   stroke: #fff;
+}
+
+/* Gentle press feedback */
+.settings-toggle-btn:not(.active):active {
+  transform: scale(0.93);
+  transition-duration: 0.08s;
+}
+
+.settings-checkbox:active {
+  transform: scale(0.92);
+  transition-duration: 0.08s;
+}
+
+/* Action buttons */
+.settings-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.85rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.settings-action-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.settings-action-btn:active {
+  transform: scale(0.95);
+  transition-duration: 0.08s;
+}
+
+.settings-action-btn-danger {
+  border-color: rgba(231, 76, 60, 0.3);
+  color: var(--text-muted);
+}
+
+.settings-action-btn-danger:hover {
+  border-color: #e74c3c;
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.08);
 }
 
 /* Select dropdown */

@@ -2137,34 +2137,52 @@
   background: var(--accent-soft);
 }
 
-/* ====== QUICKLINK DELETE ====== */
+/* ====== QUICKLINK EDIT & DELETE ====== */
 .quicklink-wrap {
   position: relative;
   display: inline-flex;
 }
 
+.quicklink-edit,
 .quicklink-delete {
   position: absolute;
-  top: -6px;
-  right: -6px;
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  border: none;
-  background: var(--bg-secondary);
   border: 1px solid var(--border);
+  background: var(--bg-secondary);
   color: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   opacity: 0;
+  pointer-events: none;
   transition: all var(--transition);
   z-index: 5;
 }
 
+.quicklink-edit {
+  top: -6px;
+  left: -6px;
+}
+
+.quicklink-delete {
+  top: -6px;
+  right: -6px;
+}
+
+.quicklink-wrap:hover .quicklink-edit,
 .quicklink-wrap:hover .quicklink-delete {
   opacity: 1;
+  pointer-events: auto;
+}
+
+.quicklink-edit:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  transform: scale(1.15);
 }
 
 .quicklink-delete:hover {
