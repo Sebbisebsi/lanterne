@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     'search-section', 'quicklinks-section', 'checklist-section', 'widgets-section',
     'scrapbook-btn', 'scrapbook-panel', 'settings-trigger',
     'settings-panel', 'sound-trigger', 'focus-toggle',
-    'widget-add-trigger', 'widget-reset-trigger', 'stats-topbar'
+    'widget-add-trigger', 'widget-reset-trigger', 'stats-topbar', 'stats-above'
   ]);
 
   const OUR_CLASSES = new Set([
@@ -83,15 +83,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   initSearch(document.getElementById('search-section'));
   initWeather(document.getElementById('weather'));
 
-  // Stats position: 'content' = above search, 'topbar' = in top bar center
-  const statsContainer = settings.statsPosition === 'topbar'
-    ? document.getElementById('stats-topbar')
-    : document.getElementById('stats-section');
-  const hideStats = settings.statsPosition === 'topbar'
-    ? document.getElementById('stats-section')
-    : document.getElementById('stats-topbar');
-  if (hideStats) hideStats.style.display = 'none';
-  initStats(statsContainer);
+  // Stats position: 'above' = above search, 'below' = below search, 'topbar' = top bar center
+  const statsIds = ['stats-above', 'stats-section', 'stats-topbar'];
+  const statsMap = { above: 'stats-above', below: 'stats-section', topbar: 'stats-topbar', content: 'stats-section' };
+  const activeStatsId = statsMap[settings.statsPosition] || 'stats-section';
+  for (const id of statsIds) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = id === activeStatsId ? '' : 'none';
+  }
+  initStats(document.getElementById(activeStatsId));
 
   initQuickLinks(document.getElementById('quicklinks-section'));
 

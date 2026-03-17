@@ -13,7 +13,7 @@ export const DEFAULT_SETTINGS = {
   layoutPosition: 'top',
   weatherUnit: 'celsius',
   searchEngine: 'google',
-  statsPosition: 'content',
+  statsPosition: 'below',
   focusMode: false,
   effectType: 'embers',
   effectAmount: 'medium',
@@ -287,11 +287,12 @@ export async function initSettings(triggerBtn, panel) {
           <div class="settings-row">
             <label>Statistik</label>
             <div class="settings-toggle-group">
-              <button class="settings-toggle-btn ${(settings.statsPosition || 'content') === 'content' ? 'active' : ''}" data-stats-val="content">Over s&oslash;gning</button>
+              <button class="settings-toggle-btn ${settings.statsPosition === 'above' ? 'active' : ''}" data-stats-val="above">Over s&oslash;gning</button>
+              <button class="settings-toggle-btn ${(!settings.statsPosition || settings.statsPosition === 'below' || settings.statsPosition === 'content') ? 'active' : ''}" data-stats-val="below">Under s&oslash;gning</button>
               <button class="settings-toggle-btn ${settings.statsPosition === 'topbar' ? 'active' : ''}" data-stats-val="topbar">Topbar</button>
             </div>
           </div>
-          <p class="settings-hint">Placer statistik over s&oslash;gefeltet eller i topbaren</p>
+          <p class="settings-hint">Placer statistik over/under s&oslash;gefeltet eller i topbaren</p>
 
           <div class="settings-row">
             <label>Daglig tjekliste</label>
