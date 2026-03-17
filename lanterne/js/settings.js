@@ -84,7 +84,10 @@ export async function initSettings(triggerBtn, panel, liveCallbacks = {}) {
 
   async function updateSetting(key, value) {
     settings[key] = value;
-    await set('settings', settings);
+    // Strip internal-only keys before persisting
+    const toSave = { ...settings };
+    delete toSave._syncEnabled;
+    await set('settings', toSave);
     applySetting(key, value);
   }
 
@@ -328,7 +331,7 @@ export async function initSettings(triggerBtn, panel, liveCallbacks = {}) {
 
           <div class="settings-row">
             <label>Dit navn</label>
-            <input type="text" class="settings-text-input" value="${settings.userName}" placeholder="Til hilsenen..." maxlength="20" />
+            <input type="text" class="settings-text-input settings-name-input" value="${settings.userName}" placeholder="Til hilsenen..." maxlength="20" />
           </div>
 
           <div class="settings-row">
@@ -557,7 +560,7 @@ export async function initSettings(triggerBtn, panel, liveCallbacks = {}) {
       colorInput.addEventListener('input', (e) => updateSetting('backgroundColor', e.target.value));
     }
 
-    // Background image upload
+    // Background image upload (resized to max 1920px to limit storage size)
     const fileInput = panel.querySelector('.settings-file-input');
     if (fileInput) {
       fileInput.addEventListener('change', (e) => {
@@ -565,8 +568,24 @@ export async function initSettings(triggerBtn, panel, liveCallbacks = {}) {
         if (!file || !file.type.startsWith('image/')) return;
         const reader = new FileReader();
         reader.onload = async () => {
-          await set('backgroundImage', reader.result);
-          applyBackground();
+          const img = new Image();
+          img.onload = async () => {
+            const MAX = 1920;
+            let { width, height } = img;
+            if (width > MAX || height > MAX) {
+              const scale = MAX / Math.max(width, height);
+              width = Math.round(width * scale);
+              height = Math.round(height * scale);
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            await set('backgroundImage', dataUrl);
+            applyBackground();
+          };
+          img.src = reader.result;
         };
         reader.readAsDataURL(file);
       });
@@ -746,7 +765,7 @@ export async function initSettings(triggerBtn, panel, liveCallbacks = {}) {
     }
 
     // Name input (debounced while typing, immediate on blur for tab-close safety)
-    const nameInput = panel.querySelector('.settings-text-input');
+    const nameInput = panel.querySelector('.settings-name-input');
     if (nameInput) {
       let debounce;
       nameInput.addEventListener('input', (e) => {
@@ -882,8 +901,15 @@ export async function initSettings(triggerBtn, panel, liveCallbacks = {}) {
           try {
             const data = JSON.parse(reader.result);
             if (typeof data !== 'object' || data === null) throw new Error('Ugyldigt format');
+            // Allowlist: only import known keys with basic type checks
+            const ALLOWED = {
+              settings: 'object', quicklinks: 'object', checklistItems: 'object',
+              scrapbook: 'object', widgetLayout: 'object', widgetConfigs: 'object',
+              habitData: 'object', welcomeDone: 'boolean', syncEnabled: 'boolean'
+            };
             for (const [k, v] of Object.entries(data)) {
-              if (k === 'backgroundImage') continue; // Skip large data
+              if (!(k in ALLOWED)) continue;
+              if (typeof v !== ALLOWED[k]) continue;
               await set(k, v);
             }
             location.reload();

@@ -484,11 +484,12 @@ function renderBookmarks(container, config) {
   const links = config.links || [];
   container.innerHTML = `<div class="widget-body widget-bookmarks-body">${links.length === 0
     ? `<div class="widget-empty-state"><div class="widget-empty-icon">${ICONS.bookmark}</div><p>Ingen bogmærker</p><p class="widget-empty-hint">Brug tandhjulet for at tilføje</p></div>`
-    : `<div class="bookmarks-list">${links.map(l => { const u = sanitizeUrl(l.url); let h = ''; try { h = new URL(u).hostname } catch { } return `<a href="${u}" class="bookmark-item"><img class="bookmark-favicon" src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(h)}&sz=32" alt="" width="16" height="16" /><span>${l.name}</span></a>`; }).join('')}</div>`
+    : `<div class="bookmarks-list">${links.map(l => { const u = sanitizeUrl(l.url); let h = ''; try { h = new URL(u).hostname } catch { } return `<a href="${u}" class="bookmark-item"><img class="bookmark-favicon" src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(h)}&sz=32" alt="" width="16" height="16" /><span>${escapeHTML(l.name)}</span></a>`; }).join('')}</div>`
     }</div>`;
 }
 
-function sanitizeUrl(url) { if (!url) return '#'; if (!/^https?:\/\//i.test(url)) return 'https://' + url; return url; }
+// Use the shared sanitizeURL from storage.js (validates via URL constructor + protocol allowlist)
+function sanitizeUrl(url) { return sanitizeURL(url) || '#'; }
 
 function renderRandomizer(container) {
   container.innerHTML = `<div class="widget-body widget-randomizer-body"><div class="randomizer-result">?</div><div class="randomizer-actions"><button class="randomizer-btn" data-type="dice">${ICONS.dice} <span>Terning</span></button><button class="randomizer-btn" data-type="coin"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/></svg><span>Mønt</span></button><button class="randomizer-btn" data-type="number"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/></svg><span>1-100</span></button></div></div>`;
@@ -618,7 +619,7 @@ async function renderHabits(container, config) {
   if (!data[today]) data[today] = {};
   function streak(h) { let s = 0; const d = new Date(); if (data[today]?.[h]) s++; else return 0; for (let i = 1; i <= 30; i++) { d.setDate(d.getDate() - 1); if (data[d.toISOString().split('T')[0]]?.[h]) s++; else break; } return s; }
   function render() {
-    container.innerHTML = `<div class="widget-body widget-habits-body">${names.map(h => { const done = data[today]?.[h] || false; const s = streak(h); return `<div class="habit-row ${done ? 'habit-done' : ''}" data-habit="${h}"><button class="habit-check">${done ? ICONS.check : ''}</button><span class="habit-name">${h}</span>${s > 0 ? `<span class="habit-streak">${s}d</span>` : ''}</div>`; }).join('')}</div>`;
+    container.innerHTML = `<div class="widget-body widget-habits-body">${names.map(h => { const done = data[today]?.[h] || false; const s = streak(h); const safe = escapeHTML(h); return `<div class="habit-row ${done ? 'habit-done' : ''}" data-habit="${safe}"><button class="habit-check">${done ? ICONS.check : ''}</button><span class="habit-name">${safe}</span>${s > 0 ? `<span class="habit-streak">${s}d</span>` : ''}</div>`; }).join('')}</div>`;
     container.querySelectorAll('.habit-check').forEach(b => b.addEventListener('click', async () => { const h = b.closest('.habit-row').dataset.habit; data[today][h] = !data[today][h]; await set('habitData', data); render(); }));
   }
   render();

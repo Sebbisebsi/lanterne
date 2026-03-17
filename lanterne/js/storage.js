@@ -2,22 +2,46 @@
 const isExtension = typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local;
 
 // Keys that should NEVER be synced (too large or ephemeral)
-const LOCAL_ONLY = new Set(['backgroundImage', 'checklistCompletions', 'checklistDate']);
+const LOCAL_ONLY = new Set(['backgroundImage', 'checklistCompletions', 'checklistDate', 'weatherCache']);
 
 // Cache syncEnabled so we don't have to async-check every call
 let _syncEnabled = false;
 let _syncLoaded = false;
 
+// Helper: resolve with lastError check
+function storageOp(fn) {
+  return new Promise((resolve, reject) => {
+    fn(() => {
+      if (chrome.runtime.lastError) {
+        console.warn('Storage error:', chrome.runtime.lastError.message);
+        reject(new Error(chrome.runtime.lastError.message));
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
+function storageGet(store, key) {
+  return new Promise((resolve) => {
+    store.get(key, (result) => {
+      if (chrome.runtime.lastError) {
+        console.warn('Storage read error:', chrome.runtime.lastError.message);
+        resolve(key === null ? {} : {});
+      } else {
+        resolve(result);
+      }
+    });
+  });
+}
+
 async function loadSyncFlag() {
   if (_syncLoaded) return _syncEnabled;
   if (!isExtension) { _syncLoaded = true; return false; }
-  return new Promise((resolve) => {
-    chrome.storage.local.get('syncEnabled', (result) => {
-      _syncEnabled = result.syncEnabled === true;
-      _syncLoaded = true;
-      resolve(_syncEnabled);
-    });
-  });
+  const result = await storageGet(chrome.storage.local, 'syncEnabled');
+  _syncEnabled = result.syncEnabled === true;
+  _syncLoaded = true;
+  return _syncEnabled;
 }
 
 function pickStore(key) {
@@ -38,27 +62,43 @@ export async function setSyncEnabled(enabled) {
   if (!isExtension) return;
 
   if (enabled) {
-    // Migrate eligible data from local → sync
-    const localData = await new Promise(r => chrome.storage.local.get(null, r));
+    // Migrate eligible data from local → sync (with quota check)
+    const localData = await storageGet(chrome.storage.local, null);
     const toSync = {};
+    let totalSize = 0;
     for (const [k, v] of Object.entries(localData)) {
-      if (!LOCAL_ONLY.has(k) && k !== 'syncEnabled') {
-        toSync[k] = v;
+      if (LOCAL_ONLY.has(k) || k === 'syncEnabled') continue;
+      const itemJson = JSON.stringify({ [k]: v });
+      const itemSize = new Blob([itemJson]).size;
+      // chrome.storage.sync: 8,192 bytes per item, 102,400 bytes total
+      if (itemSize > 8192) {
+        console.warn(`Sync: skipping "${k}" (${itemSize} bytes > 8KB limit)`);
+        continue;
       }
+      if (totalSize + itemSize > 100000) {
+        console.warn(`Sync: stopping migration, approaching 100KB total limit`);
+        break;
+      }
+      toSync[k] = v;
+      totalSize += itemSize;
     }
     if (Object.keys(toSync).length > 0) {
-      await new Promise(r => chrome.storage.sync.set(toSync, r));
+      try {
+        await storageOp(cb => chrome.storage.sync.set(toSync, cb));
+      } catch (e) {
+        console.warn('Sync migration failed:', e.message);
+      }
     }
   } else {
     // Migrate data from sync → local, then clear sync
-    const syncData = await new Promise(r => chrome.storage.sync.get(null, r));
+    const syncData = await storageGet(chrome.storage.sync, null);
     if (Object.keys(syncData).length > 0) {
-      await new Promise(r => chrome.storage.local.set(syncData, r));
-      await new Promise(r => chrome.storage.sync.clear(r));
+      await storageOp(cb => chrome.storage.local.set(syncData, cb)).catch(() => {});
+      await storageOp(cb => chrome.storage.sync.clear(cb)).catch(() => {});
     }
   }
 
-  return new Promise(r => chrome.storage.local.set({ syncEnabled: enabled }, r));
+  return storageOp(cb => chrome.storage.local.set({ syncEnabled: enabled }, cb));
 }
 
 export async function get(key, fallback = null) {
@@ -68,11 +108,8 @@ export async function get(key, fallback = null) {
   }
   await loadSyncFlag();
   const store = pickStore(key);
-  return new Promise((resolve) => {
-    store.get(key, (result) => {
-      resolve(result[key] !== undefined ? result[key] : fallback);
-    });
-  });
+  const result = await storageGet(store, key);
+  return result[key] !== undefined ? result[key] : fallback;
 }
 
 export async function set(key, value) {
@@ -82,8 +119,22 @@ export async function set(key, value) {
   }
   await loadSyncFlag();
   const store = pickStore(key);
-  return new Promise((resolve) => {
-    store.set({ [key]: value }, resolve);
+
+  // Quota check for sync storage
+  if (store === chrome.storage.sync) {
+    const itemSize = new Blob([JSON.stringify({ [key]: value })]).size;
+    if (itemSize > 8192) {
+      console.warn(`Sync write skipped: "${key}" is ${itemSize} bytes (> 8KB). Storing locally.`);
+      return storageOp(cb => chrome.storage.local.set({ [key]: value }, cb));
+    }
+  }
+
+  return storageOp(cb => store.set({ [key]: value }, cb)).catch(() => {
+    // Fallback to local if sync fails (e.g. quota exceeded)
+    if (store === chrome.storage.sync) {
+      console.warn(`Sync write failed for "${key}", falling back to local`);
+      return storageOp(cb => chrome.storage.local.set({ [key]: value }, cb)).catch(() => {});
+    }
   });
 }
 
@@ -94,9 +145,7 @@ export async function remove(key) {
   }
   await loadSyncFlag();
   const store = pickStore(key);
-  return new Promise((resolve) => {
-    store.remove(key, resolve);
-  });
+  return storageOp(cb => store.remove(key, cb)).catch(() => {});
 }
 
 export async function getAll() {
@@ -110,14 +159,12 @@ export async function getAll() {
   }
   await loadSyncFlag();
   if (!_syncEnabled) {
-    return new Promise((resolve) => {
-      chrome.storage.local.get(null, resolve);
-    });
+    return storageGet(chrome.storage.local, null);
   }
   // Merge: local (for LOCAL_ONLY keys) + sync (for everything else)
   const [localData, syncData] = await Promise.all([
-    new Promise(r => chrome.storage.local.get(null, r)),
-    new Promise(r => chrome.storage.sync.get(null, r))
+    storageGet(chrome.storage.local, null),
+    storageGet(chrome.storage.sync, null)
   ]);
   return { ...localData, ...syncData };
 }
@@ -131,9 +178,12 @@ export function escapeHTML(str) {
 export function sanitizeURL(url) {
   if (!url) return '';
   let target = url.trim();
+  // Only allow http/https protocols
+  if (/^(javascript|data|vbscript):/i.test(target)) return '';
   if (!/^https?:\/\//i.test(target)) target = 'https://' + target;
   try {
     const u = new URL(target);
+    if (u.protocol !== 'https:' && u.protocol !== 'http:') return '';
     return u.href;
   } catch {
     return '';

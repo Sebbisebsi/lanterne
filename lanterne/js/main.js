@@ -73,8 +73,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Day-night system (only when theme is 'auto')
   const daynightCanvas = document.getElementById('daynight-canvas');
+  let destroyDayNight = null;
   if (settings.theme === 'auto') {
-    initDayNight(daynightCanvas);
+    destroyDayNight = initDayNight(daynightCanvas);
   } else {
     daynightCanvas.style.display = 'none';
   }
@@ -126,8 +127,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Toggle day-night canvas
       if (theme === 'auto') {
         daynightCanvas.style.display = '';
-        initDayNight(daynightCanvas);
+        if (destroyDayNight) destroyDayNight();
+        destroyDayNight = initDayNight(daynightCanvas);
       } else {
+        if (destroyDayNight) { destroyDayNight(); destroyDayNight = null; }
         daynightCanvas.style.display = 'none';
       }
     },

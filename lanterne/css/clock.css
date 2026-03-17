@@ -74,9 +74,23 @@
   text-shadow: 0 1px 6px rgba(0,0,0,0.4);
 }
 
-/* Weather tooltip */
+/* Weather */
 .weather {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.75rem;
+  padding: 0.4rem 1rem;
+  background: rgba(17, 14, 10, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 235, 200, 0.08);
+  transition: all var(--transition);
 }
 
 .weather-tooltip {
@@ -118,23 +132,6 @@
   width: 12px;
   height: 12px;
   stroke: var(--accent);
-}
-
-.weather {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-top: 0.75rem;
-  padding: 0.4rem 1rem;
-  background: rgba(17, 14, 10, 0.6);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 235, 200, 0.08);
-  transition: all var(--transition);
 }
 
 .weather:empty {

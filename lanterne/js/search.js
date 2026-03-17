@@ -1,5 +1,3 @@
-import { get } from './storage.js';
-
 export async function initSearch(container) {
   container.innerHTML = `
     <form class="search-form" autocomplete="off">
@@ -40,6 +38,8 @@ export async function initSearch(container) {
   // Focus search on "/" or any printable keypress when not in an input
   document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    // Don't steal focus when settings or other panels are open
+    if (document.querySelector('.settings-panel.open, .scrapbook-panel.open, .sound-panel.open')) return;
     if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
       e.preventDefault();
       input.focus();

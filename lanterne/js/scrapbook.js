@@ -33,7 +33,7 @@ export async function initScrapbook(triggerBtn, panel) {
     if (isOpen) render();
   });
 
-  document.addEventListener('click', (e) => {
+  document.addEventListener('mousedown', (e) => {
     if (isOpen && !panel.contains(e.target) && !triggerBtn.contains(e.target)) {
       isOpen = false;
       panel.classList.remove('open');
@@ -146,15 +146,19 @@ export async function initScrapbook(triggerBtn, panel) {
     // Search input
     const searchInput = panel.querySelector('.scrapbook-search-input');
     if (searchInput) {
+      let searchDebounce;
       searchInput.addEventListener('input', (e) => {
         searchQuery = e.target.value;
-        render();
-        // Re-focus and restore cursor position
-        const newInput = panel.querySelector('.scrapbook-search-input');
-        if (newInput) {
-          newInput.focus();
-          newInput.setSelectionRange(newInput.value.length, newInput.value.length);
-        }
+        clearTimeout(searchDebounce);
+        searchDebounce = setTimeout(() => {
+          render();
+          // Re-focus and restore cursor position
+          const newInput = panel.querySelector('.scrapbook-search-input');
+          if (newInput) {
+            newInput.focus();
+            newInput.setSelectionRange(newInput.value.length, newInput.value.length);
+          }
+        }, 150);
       });
     }
 
