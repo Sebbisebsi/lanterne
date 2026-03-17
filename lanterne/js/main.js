@@ -164,7 +164,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   );
 
   // Welcome screen (first launch only)
-  await initWelcome();
+  // On completion, re-init all modules with the new settings instead of reloading
+  await initWelcome(async (newSettings) => {
+    // Theme
+    liveCallbacks.onThemeChange(newSettings.theme);
+    // Effects
+    await liveCallbacks.onEffectChange(newSettings);
+    // Clock, greeting, date
+    liveCallbacks.onClockChange(newSettings);
+    // Weather (unit may have changed)
+    liveCallbacks.onWeatherChange(newSettings);
+    // Layout position
+    const content = document.querySelector('.content');
+    if (content) content.setAttribute('data-position', newSettings.layoutPosition || 'top');
+  });
 
   // Global keyboard shortcuts (Alt-based, no Ctrl to avoid zoom conflicts)
   document.addEventListener('keydown', (e) => {

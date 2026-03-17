@@ -196,7 +196,7 @@ function initWelcomeCanvas(canvas) {
 }
 
 // ─── Welcome flow ───
-export async function initWelcome() {
+export async function initWelcome(onComplete = null) {
   const done = await get('welcomeDone', false);
   if (done) return;
 
@@ -503,11 +503,15 @@ export async function initWelcome() {
         `;
       }
 
-      // Fade out after a moment, then reload
+      // Fade out after a moment, then apply settings live (no reload)
       setTimeout(() => {
         overlay.classList.add('welcome-exit');
         if (destroyCanvas) destroyCanvas();
-        setTimeout(() => location.reload(), 600);
+        setTimeout(() => {
+          overlay.remove();
+          // Trigger live re-init of all modules with new settings
+          if (onComplete) onComplete(settings);
+        }, 600);
       }, 1800);
     }
   }
