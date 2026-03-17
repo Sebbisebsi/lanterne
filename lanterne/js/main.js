@@ -166,6 +166,37 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Welcome screen (first launch only)
   await initWelcome();
 
+  // Global keyboard shortcuts (Alt-based, no Ctrl to avoid zoom conflicts)
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (!e.altKey) return;
+
+    switch (e.key.toLowerCase()) {
+      case 's': // Alt+S → Settings
+        e.preventDefault();
+        document.getElementById('settings-trigger')?.click();
+        break;
+      case 'b': // Alt+B → Scrapbook
+        e.preventDefault();
+        document.getElementById('scrapbook-btn')?.click();
+        break;
+      case 'f': // Alt+F → Focus mode
+        e.preventDefault();
+        document.getElementById('focus-toggle')?.click();
+        break;
+      case 'a': // Alt+A → Ambient sounds
+        e.preventDefault();
+        document.getElementById('sound-trigger')?.click();
+        break;
+    }
+  });
+
+  // Auto-focus search (disabled by default)
+  if (settings.autoFocusSearch) {
+    const searchInput = document.querySelector('.search-input');
+    if (searchInput) searchInput.focus();
+  }
+
   // Focus mode
   const focusToggle = document.getElementById('focus-toggle');
   let focusMode = settings.focusMode || false;

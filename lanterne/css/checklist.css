@@ -276,6 +276,75 @@
   background: var(--accent-soft);
 }
 
+/* Color picker */
+.checklist-color-picker {
+  display: flex;
+  gap: 5px;
+}
+
+.checklist-color-option {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.checklist-color-option[data-color=""] {
+  background: var(--bg-card);
+  border: 1px dashed var(--border);
+}
+
+.checklist-color-option[data-color=""]::after {
+  content: '×';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.checklist-color-option:hover {
+  transform: scale(1.15);
+}
+
+.checklist-color-option.selected {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px var(--accent);
+  transform: scale(1.1);
+}
+
+/* Drag styling */
+.checklist-item.dragging {
+  opacity: 0.4;
+}
+
+.checklist-item.drag-over {
+  border-top: 2px solid var(--accent);
+}
+
+.checklist-drag-handle {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+  opacity: 0;
+  cursor: grab;
+  transition: opacity var(--transition);
+  flex-shrink: 0;
+}
+
+.checklist-item:hover .checklist-drag-handle {
+  opacity: 0.5;
+}
+
+.checklist-drag-handle:hover {
+  opacity: 1 !important;
+}
+
 /* Modal actions */
 .checklist-modal-actions {
   display: flex;

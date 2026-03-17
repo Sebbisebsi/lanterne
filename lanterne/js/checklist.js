@@ -1,9 +1,19 @@
 import { get, set, escapeHTML } from './storage.js';
 
 const DEFAULT_ITEMS = [
-  { id: 'c_1', text: 'Tjek e-mails', icon: 'mail' },
-  { id: 'c_2', text: 'Planl\u00e6g dagens opgaver', icon: 'list' },
-  { id: 'c_3', text: 'Tag en pause', icon: 'coffee' }
+  { id: 'c_1', text: 'Tjek e-mails', icon: 'mail', color: '' },
+  { id: 'c_2', text: 'Planl\u00e6g dagens opgaver', icon: 'list', color: '' },
+  { id: 'c_3', text: 'Tag en pause', icon: 'coffee', color: '' }
+];
+
+const CHECKLIST_COLORS = [
+  { name: 'Ingen', value: '' },
+  { name: 'Rød', value: '#e74c3c' },
+  { name: 'Orange', value: '#e09030' },
+  { name: 'Gul', value: '#f1c40f' },
+  { name: 'Grøn', value: '#2ecc71' },
+  { name: 'Blå', value: '#3498db' },
+  { name: 'Lilla', value: '#9b59b6' }
 ];
 
 const CHECKLIST_ICONS = {
@@ -54,8 +64,9 @@ export async function initChecklist(container) {
         <div class="checklist-items">
           ${items.map((item, idx) => {
             const done = completions[item.id] || false;
+            const colorStyle = item.color ? `border-left: 3px solid ${item.color}; padding-left: calc(0.5rem - 3px);` : '';
             return `
-              <div class="checklist-item ${done ? 'done' : ''}" data-id="${item.id}" data-idx="${idx}" draggable="true">
+              <div class="checklist-item ${done ? 'done' : ''}" data-id="${item.id}" data-idx="${idx}" draggable="true" style="${colorStyle}">
                 <span class="checklist-drag-handle" title="Tr&aelig;k for at flytte">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg>
                 </span>
@@ -86,10 +97,13 @@ export async function initChecklist(container) {
       });
     });
 
-    // Delete item
+    // Delete item (with confirm)
     container.querySelectorAll('.checklist-delete').forEach(btn => {
       btn.addEventListener('click', async () => {
-        const id = btn.closest('.checklist-item').dataset.id;
+        const el = btn.closest('.checklist-item');
+        const id = el.dataset.id;
+        const item = items.find(i => i.id === id);
+        if (!confirm(`Fjern "${item ? item.text : 'dette punkt'}" fra tjeklisten?`)) return;
         items = items.filter(i => i.id !== id);
         delete completions[id];
         await set('checklistItems', items);
@@ -139,6 +153,7 @@ export async function initChecklist(container) {
     overlay.className = 'checklist-modal-overlay';
 
     let selectedIcon = 'check';
+    let selectedColor = '';
 
     overlay.innerHTML = `
       <div class="checklist-modal">
@@ -148,6 +163,12 @@ export async function initChecklist(container) {
         <div class="checklist-icon-picker">
           ${Object.entries(CHECKLIST_ICONS).map(([name, svg]) =>
             `<button class="checklist-icon-option ${name === selectedIcon ? 'selected' : ''}" data-icon="${name}" title="${name}">${svg}</button>`
+          ).join('')}
+        </div>
+        <label class="checklist-label">Farve</label>
+        <div class="checklist-color-picker">
+          ${CHECKLIST_COLORS.map(c =>
+            `<button class="checklist-color-option ${c.value === selectedColor ? 'selected' : ''}" data-color="${c.value}" title="${c.name}" style="${c.value ? 'background:' + c.value : ''}"></button>`
           ).join('')}
         </div>
         <div class="checklist-modal-actions">
@@ -169,6 +190,15 @@ export async function initChecklist(container) {
       });
     });
 
+    // Color selection
+    overlay.querySelectorAll('.checklist-color-option').forEach(btn => {
+      btn.addEventListener('click', () => {
+        overlay.querySelectorAll('.checklist-color-option').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedColor = btn.dataset.color;
+      });
+    });
+
     overlay.querySelector('.checklist-cancel').addEventListener('click', () => overlay.remove());
     overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
 
@@ -182,7 +212,8 @@ export async function initChecklist(container) {
       items.push({
         id: 'c_' + Date.now(),
         text,
-        icon: selectedIcon
+        icon: selectedIcon,
+        color: selectedColor
       });
 
       await set('checklistItems', items);

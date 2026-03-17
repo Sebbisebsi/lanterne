@@ -12,7 +12,6 @@ export async function initSearch(container) {
           type="text"
           class="search-input"
           placeholder="S&oslash;g..."
-          autofocus
         />
         <span class="search-shortcut-hint">/</span>
       </div>

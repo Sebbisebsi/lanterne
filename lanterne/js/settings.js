@@ -23,6 +23,9 @@ export const DEFAULT_SETTINGS = {
   autoHideBar: false,
   showSearch: true,
   showQuicklinks: true,
+  autoFocusSearch: false,
+  // Date
+  dateFormat: 'long',           // 'long' = tirsdag den 17. marts 2026, 'short' = 17/3/2026
   // Greeting
   greetingStyle: 'auto',       // 'auto' = time-based, 'custom' = user text
   customGreeting: '',
@@ -303,6 +306,15 @@ export async function initSettings(triggerBtn, panel, liveCallbacks = {}) {
           </div>
 
           <div class="settings-row">
+            <label>Datoformat</label>
+            <div class="settings-toggle-group">
+              <button class="settings-toggle-btn ${(settings.dateFormat || 'long') === 'long' ? 'active' : ''}" data-date-val="long">Lang</button>
+              <button class="settings-toggle-btn ${settings.dateFormat === 'short' ? 'active' : ''}" data-date-val="short">Kort</button>
+            </div>
+          </div>
+          <p class="settings-hint">Lang: tirsdag den 17. marts &mdash; Kort: 17/3/2026</p>
+
+          <div class="settings-row">
             <label>Vejrenhed</label>
             <div class="settings-toggle-group">
               <button class="settings-toggle-btn ${settings.weatherUnit === 'celsius' ? 'active' : ''}" data-weather-val="celsius">&deg;C</button>
@@ -393,6 +405,14 @@ export async function initSettings(triggerBtn, panel, liveCallbacks = {}) {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </button>
           </div>
+
+          <div class="settings-row">
+            <label>Auto-fokus s&oslash;gebar</label>
+            <button class="settings-checkbox ${settings.autoFocusSearch ? 'checked' : ''}" data-setting="autoFocusSearch">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
+          </div>
+          <p class="settings-hint">Fokuserer automatisk s&oslash;gefeltet n&aring;r en ny fane &aring;bnes</p>
 
           <div class="settings-row">
             <label>Genveje</label>
@@ -576,6 +596,24 @@ export async function initSettings(triggerBtn, panel, liveCallbacks = {}) {
         const val = parseFloat(e.target.value);
         if (opacityVal) opacityVal.textContent = Math.round(val * 100) + '%';
         updateSetting('backgroundOpacity', val);
+      });
+    }
+
+    // Date format toggle — live
+    panel.querySelectorAll('[data-date-val]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        updateSetting('dateFormat', btn.dataset.dateVal).then(() => {
+          if (liveCallbacks.onClockChange) liveCallbacks.onClockChange(settings);
+          render();
+        });
+      });
+    });
+
+    // Auto-focus search toggle
+    const autoFocusBtn = panel.querySelector('[data-setting="autoFocusSearch"]');
+    if (autoFocusBtn) {
+      autoFocusBtn.addEventListener('click', () => {
+        updateSetting('autoFocusSearch', !settings.autoFocusSearch).then(render);
       });
     }
 

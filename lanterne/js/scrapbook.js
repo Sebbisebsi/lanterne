@@ -186,10 +186,12 @@ export async function initScrapbook(triggerBtn, panel) {
       }
     });
 
-    // Delete buttons
+    // Delete buttons (with confirm)
     panel.querySelectorAll('.scrapbook-item-delete').forEach(btn => {
       btn.addEventListener('click', async () => {
         const id = btn.dataset.id;
+        const item = items.find(i => i.id === id);
+        if (!confirm(`Slet "${item ? item.title : 'dette klip'}" fra scrapbook?`)) return;
         items = items.filter(i => i.id !== id);
         await set('scrapbook', items);
         render();

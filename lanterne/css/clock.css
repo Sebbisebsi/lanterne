@@ -59,6 +59,67 @@
   text-shadow: 0 1px 8px rgba(0,0,0,0.5);
 }
 
+/* Daily quote */
+.daily-quote {
+  font-family: var(--font-body);
+  font-size: clamp(0.7rem, 1vw, 0.82rem);
+  font-style: italic;
+  font-weight: 300;
+  color: var(--text-muted);
+  opacity: 0.6;
+  margin-top: 0.5rem;
+  max-width: 500px;
+  text-align: center;
+  line-height: 1.5;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.4);
+}
+
+/* Weather tooltip */
+.weather {
+  position: relative;
+}
+
+.weather-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(17, 14, 10, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.85rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  z-index: 20;
+  pointer-events: none;
+  box-shadow: var(--shadow);
+}
+
+.weather:hover .weather-tooltip {
+  display: block;
+}
+
+[data-theme="light"] .weather-tooltip {
+  background: rgba(248, 242, 234, 0.95);
+}
+
+.weather-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.15rem 0;
+}
+
+.weather-tooltip-row svg {
+  width: 12px;
+  height: 12px;
+  stroke: var(--accent);
+}
+
 .weather {
   display: flex;
   align-items: center;

@@ -65,6 +65,7 @@ export async function initQuickLinks(container) {
       deleteBtn.addEventListener('click', async (e) => {
         e.preventDefault();
         e.stopPropagation();
+        if (!confirm(`Fjern "${link.name}" fra genveje?`)) return;
         links = links.filter(l => l.id !== link.id);
         await set('quicklinks', links);
         render();

@@ -84,15 +84,26 @@ export async function initWeather(container) {
 
     const { latitude, longitude } = position.coords;
     const response = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`
+      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=relativehumidity_2m,uv_index&forecast_days=1`
     );
     const data = await response.json();
 
     if (data.current_weather) {
+      // Find current hour's humidity and UV from hourly data
+      const currentHour = new Date().getHours();
+      let humidity = null;
+      let uvIndex = null;
+      if (data.hourly) {
+        if (data.hourly.relativehumidity_2m) humidity = data.hourly.relativehumidity_2m[currentHour];
+        if (data.hourly.uv_index) uvIndex = data.hourly.uv_index[currentHour];
+      }
+
       const weatherData = {
         temp: Math.round(data.current_weather.temperature),
         code: data.current_weather.weathercode,
-        windSpeed: data.current_weather.windspeed
+        windSpeed: data.current_weather.windspeed,
+        humidity: humidity,
+        uvIndex: uvIndex != null ? Math.round(uvIndex * 10) / 10 : null
       };
 
       // Cache it
@@ -123,7 +134,24 @@ function render(container, data, unit = 'celsius') {
   const showFeels = Math.abs(feels - temp) >= 2;
   const windDisplay = data.windSpeed ? `${Math.round(data.windSpeed)} km/t` : '';
 
+  // Build tooltip rows
+  let tooltipRows = '';
+  if (windDisplay) {
+    tooltipRows += `<div class="weather-tooltip-row">${ICONS['wind']} Vind: ${windDisplay}</div>`;
+  }
+  if (showFeels) {
+    tooltipRows += `<div class="weather-tooltip-row"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg> F\u00f8les som: ${displayFeels}${symbol}</div>`;
+  }
+  if (data.humidity != null) {
+    tooltipRows += `<div class="weather-tooltip-row"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg> Luftfugtighed: ${data.humidity}%</div>`;
+  }
+  if (data.uvIndex != null) {
+    const uvLabel = data.uvIndex < 3 ? 'Lav' : data.uvIndex < 6 ? 'Moderat' : data.uvIndex < 8 ? 'H\u00f8j' : 'Meget h\u00f8j';
+    tooltipRows += `<div class="weather-tooltip-row"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/></svg> UV-indeks: ${data.uvIndex} (${uvLabel})</div>`;
+  }
+
   container.innerHTML = `
+    ${tooltipRows ? `<div class="weather-tooltip">${tooltipRows}</div>` : ''}
     <span class="weather-main">
       ${ICONS[info.icon] || ICONS['cloud']}
       <span>${displayTemp}${symbol}</span>
